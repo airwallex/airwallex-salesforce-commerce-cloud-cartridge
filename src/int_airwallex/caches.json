@@ -1,0 +1,8 @@
+{
+  "caches": [
+    {
+      "id": "AirwallexTokenCache",
+      "expireAfterSeconds": 1800
+    }
+  ]
+}

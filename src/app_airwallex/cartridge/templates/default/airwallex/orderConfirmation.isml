@@ -1,0 +1,14 @@
+<div>
+  <form action="${URLUtils.url('Order-Confirm')}" method="post" id="orderConfirmation">
+    <input type="hidden" name="orderID" value="${pdict.orderNo}">
+    <input type="hidden" name="orderToken" value="${pdict.orderToken}">
+  </form>
+  <script>
+    let loaded = false;
+    function load() {
+      document.getElementById('orderConfirmation').submit();
+      loaded = true;
+    }
+    load();
+  </script>
+</div>

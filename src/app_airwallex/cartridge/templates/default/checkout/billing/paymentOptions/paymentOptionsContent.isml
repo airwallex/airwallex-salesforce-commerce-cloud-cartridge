@@ -1,0 +1,8 @@
+<isloop items="${pdict.order.billing.payment.applicablePaymentMethods}" var="paymentOption" status="loopState">
+    <isif condition="${paymentOption.ID === 'AirwallexCreditCard'}">
+        <isinclude template="checkout/billing/paymentOptions/creditCardContent"/>
+    </isif>
+    <isif condition="${paymentOption.ID === 'AirwallexOnline'}">
+        <isinclude template="checkout/billing/paymentOptions/lpmContent"/>
+    </isif>
+</isloop>

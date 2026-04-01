@@ -1,0 +1,38 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isinclude url="${URLUtils.url('SiteNavigationBar-IncludeFrameTop','SelectedMenuItem',pdict.SelectedMenuItem,'CurrentMenuItemId',pdict.CurrentMenuItemId)}">
+<isset name="ConfigHelper" value="${require('*/cartridge/scripts/helpers/configHelper')}" scope="page"/>
+<script>
+    window.endpoints = {
+        save: '${URLUtils.https('AirwallexSettings-Save')}',
+        webhook: '${ConfigHelper.getWebhookUrl()}',
+        getPaymentMethodTypes: '${URLUtils.https('AirwallexSettings-GetPaymentMethodTypes')}',
+    }
+    window.airwallexBusinessManager = {
+        environment: '${ConfigHelper.getEnvironment()}',
+        clientIdDemo: '${ConfigHelper.getClientId('demo') || ''}',
+        clientIdProduction: '${ConfigHelper.getClientId('production') || ''}',
+        apiKeyDemo: '${ConfigHelper.getApiKey('demo') || ''}',
+        apiKeyProduction: '${ConfigHelper.getApiKey('production') || ''}',
+        webhookSecretDemo: '${ConfigHelper.getWebhookSecret('demo') || ''}',
+        webhookSecretProduction: '${ConfigHelper.getWebhookSecret('production') || ''}',
+        cardSchemeDemo: '${ConfigHelper.getCardScheme('demo') || ''}',
+        cardSchemeProduction: '${ConfigHelper.getCardScheme('production') || ''}',
+        expressCheckoutDemo: '${ConfigHelper.getExpressCheckout('demo') || ''}',
+        expressCheckoutProduction: '${ConfigHelper.getExpressCheckout('production') || ''}',
+        enabledPaymentMethodsDemo: '${ConfigHelper.getEnabledPaymentMethods('demo') || ''}',
+        enabledPaymentMethodsProduction: '${ConfigHelper.getEnabledPaymentMethods('production') || ''}',
+        autoCaptureDemo: ${ConfigHelper.getAutoCapture('demo')},
+        autoCaptureProduction: ${ConfigHelper.getAutoCapture('production')},
+    }
+</script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="module" src="${URLUtils.httpsStatic('/index.js?v=' + Math.random())}"></script>
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/index.css?v=' + Math.random())}" />
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>

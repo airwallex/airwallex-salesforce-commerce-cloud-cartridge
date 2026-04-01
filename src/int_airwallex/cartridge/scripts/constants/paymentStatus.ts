@@ -1,0 +1,68 @@
+/**
+ * Airwallex payment status constants
+ */
+
+export const PAYMENT_INTENT_STATUS = {
+  REQUIRES_PAYMENT_METHOD: 'REQUIRES_PAYMENT_METHOD',
+  REQUIRES_CUSTOMER_ACTION: 'REQUIRES_CUSTOMER_ACTION',
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  REQUIRES_CAPTURE: 'REQUIRES_CAPTURE',
+  PENDING: 'PENDING',
+  SUCCEEDED: 'SUCCEEDED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export type PaymentIntentStatus = (typeof PAYMENT_INTENT_STATUS)[keyof typeof PAYMENT_INTENT_STATUS];
+
+export const PAYMENT_ATTEMPT_STATUS = {
+  RECEIVED: 'RECEIVED',
+  AUTHENTICATION_REDIRECTED: 'AUTHENTICATION_REDIRECTED',
+  PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION',
+  AUTHORIZED: 'AUTHORIZED',
+  CAPTURE_REQUESTED: 'CAPTURE_REQUESTED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED',
+  SETTLED: 'SETTLED',
+  PAID: 'PAID',
+};
+
+export type PaymentAttemptStatus = (typeof PAYMENT_ATTEMPT_STATUS)[keyof typeof PAYMENT_ATTEMPT_STATUS];
+
+export const REFUND_STATUS = {
+  RECEIVED: 'RECEIVED',
+  ACCEPTED: 'ACCEPTED',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+} as const;
+
+export type RefundStatus = (typeof REFUND_STATUS)[keyof typeof REFUND_STATUS];
+
+export const CAPTURE_MODE = {
+  AUTO: 'auto',
+  MANUAL: 'manual',
+} as const;
+
+export type CaptureMode = (typeof CAPTURE_MODE)[keyof typeof CAPTURE_MODE];
+
+export const RETURN_RESULT = {
+  FAILURE: 'failure',
+  CANCEL: 'cancel',
+  BACK: 'back',
+} as const;
+
+export type ReturnResult = (typeof RETURN_RESULT)[keyof typeof RETURN_RESULT];
+
+module.exports = {
+  PAYMENT_INTENT_STATUS,
+  REFUND_STATUS,
+  CAPTURE_MODE,
+  RETURN_RESULT,
+};
+
+export default {
+  PAYMENT_INTENT_STATUS,
+  REFUND_STATUS,
+  CAPTURE_MODE,
+  RETURN_RESULT,
+};

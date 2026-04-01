@@ -1,0 +1,65 @@
+/**
+ * Error codes for logging and error handling
+ */
+
+export const ERROR_CODES = {
+  // Authentication errors
+  AUTH_FAILED: 'AUTH_FAILED',
+  AUTH_TOKEN_EXPIRED: 'AUTH_TOKEN_EXPIRED',
+  AUTH_INVALID_CREDENTIALS: 'AUTH_INVALID_CREDENTIALS',
+
+  // Payment Intent errors
+  PAYMENT_INTENT_CREATE_FAILED: 'PAYMENT_INTENT_CREATE_FAILED',
+  PAYMENT_INTENT_NOT_FOUND: 'PAYMENT_INTENT_NOT_FOUND',
+  PAYMENT_INTENT_INVALID_STATUS: 'PAYMENT_INTENT_INVALID_STATUS',
+  PAYMENT_INTENT_CAPTURE_FAILED: 'PAYMENT_INTENT_CAPTURE_FAILED',
+  PAYMENT_INTENT_CANCEL_FAILED: 'PAYMENT_INTENT_CANCEL_FAILED',
+
+  // Refund errors
+  REFUND_CREATE_FAILED: 'REFUND_CREATE_FAILED',
+  REFUND_AMOUNT_EXCEEDED: 'REFUND_AMOUNT_EXCEEDED',
+
+  // Webhook errors
+  WEBHOOK_SIGNATURE_INVALID: 'WEBHOOK_SIGNATURE_INVALID',
+  WEBHOOK_PROCESSING_FAILED: 'WEBHOOK_PROCESSING_FAILED',
+
+  // Service errors
+  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
+  SERVICE_TIMEOUT: 'SERVICE_TIMEOUT',
+  SERVICE_ERROR: 'SERVICE_ERROR',
+
+  // Validation errors
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  INVALID_AMOUNT: 'INVALID_AMOUNT',
+  INVALID_CURRENCY: 'INVALID_CURRENCY',
+
+  // Configuration errors
+  CONFIGURATION_ERROR: 'CONFIGURATION_ERROR',
+
+  // Generic errors
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+} as const;
+
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
+
+// Checkout error identifiers passed as URL parameters to the storefront
+export const CHECKOUT_ERROR = {
+  PAYMENT_FAILED: 'payment_failed',
+  PAYMENT_NOT_FOUND: 'payment_not_found',
+  PAYMENT_CANCELLED: 'payment_cancelled',
+  PAYMENT_ERROR: 'payment_error',
+  PROCESSING_ERROR: 'processing_error',
+  ORDER_CREATION_FAILED: 'order_creation_failed',
+} as const;
+
+export type CheckoutError = (typeof CHECKOUT_ERROR)[keyof typeof CHECKOUT_ERROR];
+
+module.exports = {
+  ERROR_CODES,
+  CHECKOUT_ERROR,
+};
+
+export default {
+  ERROR_CODES,
+  CHECKOUT_ERROR,
+};

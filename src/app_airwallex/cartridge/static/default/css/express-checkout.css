@@ -1,0 +1,15 @@
+.awx-express-checkout {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(12, 1fr);
+  margin: 0px;
+  margin-bottom: 16px;
+}
+
+.awx-express-checkout-item {
+  grid-column: span 6;
+}
+
+.awx-express-checkout-item:empty {
+  display: none;
+}

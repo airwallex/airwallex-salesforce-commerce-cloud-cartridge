@@ -1,0 +1,22 @@
+<div class="awx-payment-method-container">
+    <div class="tab-pane active lpm-pane hidden" id="lpm-pane" role="tabpanel">
+        <fieldset class="payment-form-fields">
+            <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+                value="AirwallexOnline">
+            <fieldset class="">
+                <isinclude template="checkout/billing/lpmForm" />
+            </fieldset>
+        </fieldset>
+    </div>
+    <div class="awx-payment-method-section">
+        <input class="awx-payment-method-radio" type="radio" value="AirwallexOnline" data-content="#lpm-content"
+            data-pane="#lpm-pane" />
+        <img class="awx-payment-method-icon" src="${URLUtils.staticURL('/images/local-payment-method.svg')}"
+            alt="Local Payment Method" />
+        <span class="awx-payment-method-name">Local Payment Method</span>
+    </div>
+    <div class="awx-payment-method-section" id="lpm-content">
+        <img class="awx-payment-method-large-icon" src="${URLUtils.staticURL('/images/proceed.svg')}" alt="Proceed" />
+        <p class="awx-payment-method-description">After selecting “Next: Place order”, you may select the preferred payment method to securely complete your purchase.</p>
+    </div>
+</div>

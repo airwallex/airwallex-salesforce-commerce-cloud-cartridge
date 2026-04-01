@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment-settings xmlns="http://www.demandware.com/xml/impex/paymentsettings/2009-09-15">
+    <payment-method method-id="AirwallexCreditCard">
+        <name xml:lang="x-default">Credit Card</name>
+        <description xml:lang="x-default">Credit card payments</description>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>AIRWALLEX_CREDIT_CARD</processor-id>
+    </payment-method>
+    <payment-method method-id="AirwallexOnline">
+        <name xml:lang="x-default">Airwallex Online Payments</name>
+        <description xml:lang="x-default">Alternative payment methods</description>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>AIRWALLEX_ONLINE</processor-id>
+    </payment-method>
+</payment-settings>
