@@ -22,7 +22,8 @@
     "uploadCartridge:app": "sgmf-scripts --uploadCartridge app_airwallex",
     "uploadCartridge:app:env": "source .env && sgmf-scripts --uploadCartridge $APP_AIRWALLEX_CARTRIDGE_NAME",
     "uploadCartridge": "sgmf-scripts --uploadCartridge bm_airwallex && sgmf-scripts --uploadCartridge int_airwallex && sgmf-scripts --uploadCartridge app_airwallex",
-    "uploadCartridge:env": "source .env && sgmf-scripts --uploadCartridge $BM_AIRWALLEX_CARTRIDGE_NAME && sgmf-scripts --uploadCartridge $INT_AIRWALLEX_CARTRIDGE_NAME && sgmf-scripts --uploadCartridge $APP_AIRWALLEX_CARTRIDGE_NAME"
+    "uploadCartridge:env": "source .env && sgmf-scripts --uploadCartridge $BM_AIRWALLEX_CARTRIDGE_NAME && sgmf-scripts --uploadCartridge $INT_AIRWALLEX_CARTRIDGE_NAME && sgmf-scripts --uploadCartridge $APP_AIRWALLEX_CARTRIDGE_NAME",
+    "postinstall": "npm install --prefix packages/bm-web"
   },
   "devDependencies": {
     "@airwallex/components-sdk": "^1.27.2",

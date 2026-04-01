@@ -121,7 +121,17 @@ cd payment-plugin-salesforce
 npm install
 ```
 
-### Step 3: Build the cartridge
+### Step 3: Create the environment file
+
+Create a `.env` file in the project root with the cartridge names:
+
+```bash
+APP_AIRWALLEX_CARTRIDGE_NAME="app_airwallex"
+BM_AIRWALLEX_CARTRIDGE_NAME="bm_airwallex"
+INT_AIRWALLEX_CARTRIDGE_NAME="int_airwallex"
+```
+
+### Step 4: Build the cartridge
 
 ```bash
 npm run build-compile
@@ -129,7 +139,7 @@ npm run build-compile
 
 This compiles the TypeScript source in `src/` and outputs deployable JavaScript to the `cartridges/` directory. It also builds the Business Manager React UI.
 
-### Step 4: Configure your SFCC connection
+### Step 5: Configure your SFCC connection
 
 Create a `dw.json` file in the project root with your SFCC credentials:
 
@@ -151,7 +161,7 @@ Create a `dw.json` file in the project root with your SFCC credentials:
 
 > **Security note:** The `dw.json` file is git-ignored by default. Never commit this file to version control.
 
-### Step 5: Upload the cartridge
+### Step 6: Upload the cartridge
 
 ```bash
 npm run uploadCartridge
