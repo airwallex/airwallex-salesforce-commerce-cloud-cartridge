@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "moduleResolution": "node",
+    "sourceMap": false,
+    "newLine": "LF",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "baseUrl": ".",
+    "lib": ["es6", "dom"],
+    "paths": {
+      "dw/*": ["./@types/sfcc/dw/*"],
+      "server": ["./@types/server"],
+      "server/*": ["src/modules/server/*"],
+      "@/cartridge/*": ["src/int_airwallex/cartridge/*", "src/bm_airwallex/cartridge/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

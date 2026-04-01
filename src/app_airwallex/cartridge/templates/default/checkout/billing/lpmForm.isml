@@ -1,0 +1,3 @@
+<iscontent type="text/html"/>
+<input type="text" class="form-control cardNumber" style="display:none" id="cardNumber" name="${creditFields.cardNumber.htmlName}">
+<input type="hidden" class="form-control" id="cardType" name="${creditFields.cardType.htmlName}">

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+    <job job-id="Airwallex - Process Webhook Notifications" priority="0">
+        <description>Process queued Airwallex webhook events</description>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="RefArchGlobal"/>
+                <template-ref template-id="airwallex_process_template"/>
+            </flow>
+            <flow-template template-id="airwallex_process_template">
+                <step step-id="ProcessWebhookQueue" type="ExecuteScriptModule" enforce-restart="false">
+                    <description>Process pending webhook events from the queue</description>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">int_airwallex/cartridge/scripts/jobs/processWebhookQueue.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">900</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2026-01-01Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>5m</interval>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+</jobs>

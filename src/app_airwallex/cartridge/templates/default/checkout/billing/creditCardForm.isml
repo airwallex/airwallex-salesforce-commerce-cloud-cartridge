@@ -1,0 +1,19 @@
+<iscontent type="text/html" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/airwallex-card.css')}">
+<div class="awx-card-container">
+    <div class="awx-full-width">
+        <div class="awx-card-information">
+            <p class="awx-body-text">Card information</p>
+        </div>
+        <div id="airwallex-card-number" class="awx-input awx-card-number" tabindex="0"></div>
+    </div>
+    <div class="awx-half-width">
+        <div id="airwallex-card-expiry" class="awx-input awx-card-expiry" tabindex="0"></div>
+    </div>
+    <div class="awx-half-width">
+        <div id="airwallex-card-cvc" class="awx-input awx-card-cvc" tabindex="0"></div>
+    </div>
+    <div class="awx-full-width">
+        <div id="awx-card-error" class="awx-error"></div>
+    </div>
+</div>

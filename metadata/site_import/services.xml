@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- IMPORTANT: YOUR_LIVE_PREFIX and CHECKOUT_API_VERSION get populated in the code, hence there is not need to change them in this file. -->
+<services xmlns="http://www.demandware.com/xml/impex/services/2014-09-26">
+    <service-credential service-credential-id="AirwallexPublicAPI">
+        <url>https://api.airwallex.com</url>
+        <user-id></user-id>
+        <password/>
+    </service-credential>
+
+    <service-profile service-profile-id="Airwallex">
+        <timeout-millis>30000</timeout-millis>
+        <cb-enabled>false</cb-enabled>
+    </service-profile>
+
+    <service service-id="AirwallexPublicAPI">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>airwallex</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>Airwallex</profile-id>
+        <credential-id>AirwallexPublicAPI</credential-id>
+    </service>
+</services>

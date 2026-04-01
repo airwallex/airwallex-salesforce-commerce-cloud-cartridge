@@ -1,0 +1,12 @@
+<extensions xmlns="http://www.demandware.com/xml/bmmodules/2007-12-11" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.demandware.com/xml/bmmodules/2007-12-11 bmext.xsd">
+	<menuaction id="airwallex_settings" menupath="site-prefs" position="2" site="true">
+        <name xml:lang="x-default">Airwallex Settings</name>
+        <short_description xml:lang="x-default">Airwallex Settings</short_description>
+        <description xml:lang="x-default">Airwallex Settings</description>
+        <exec pipeline="AirwallexSettings" node="Start"/>
+        <sub-pipelines>
+            <pipeline name="AirwallexSettings"/>
+        </sub-pipelines>
+        <icon>airwallex.svg</icon>
+    </menuaction>
+</extensions>

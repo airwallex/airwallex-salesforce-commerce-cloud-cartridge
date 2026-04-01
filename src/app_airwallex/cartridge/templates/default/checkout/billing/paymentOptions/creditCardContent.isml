@@ -1,0 +1,18 @@
+<div class="awx-payment-method-container">
+<div class="tab-pane active credit-card-pane hidden" id="credit-card-pane" role="tabpanel">
+    <fieldset class="payment-form-fields">
+        <input type="hidden" class="form-control"
+               name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+               value="AirwallexCreditCard"
+        >
+    </fieldset>
+</div>
+    <div class="awx-payment-method-section">
+        <input class="awx-payment-method-radio" type="radio" value="AirwallexCreditCard" data-content="#credit-card-content" data-pane="#credit-card-pane" />
+        <img class="awx-payment-method-icon" src="${URLUtils.staticURL('/images/card-payment.svg')}" alt="Credit Card" />
+        <span class="awx-payment-method-name">Card</span>
+    </div>
+    <div id="credit-card-content">
+        <isinclude template="checkout/billing/creditCardForm" />
+    </div>
+</div>

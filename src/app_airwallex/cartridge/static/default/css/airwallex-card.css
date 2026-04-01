@@ -1,0 +1,86 @@
+.awx-card-container {
+  flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.awx-full-width {
+  width: 100%;
+}
+
+.awx-half-width {
+  width: 50%;
+}
+
+.awx-card-information {
+  margin-bottom: 4px;
+}
+
+.awx-body-text {
+  margin: 0px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #1b1f21;
+}
+
+.awx-input {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+  background: #fafafb;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #e8eaed;
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  line-height: 24px;
+  height: 40px;
+  color: #1b1f21;
+  padding: 1px 16px;
+  appearance: none;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.awx-input.focused {
+  box-shadow:
+    0 0 0 1px #612fff,
+    0 0 0 1px #612fff inset;
+  z-index: 3;
+}
+.awx-input.error {
+  box-shadow: 0 0 0 1px #ff4f42;
+  z-index: 2;
+}
+
+.awx-card-number {
+  border-radius: 6px 6px 0 0;
+  z-index: 1;
+}
+.awx-card-expiry {
+  border-radius: 0 0 0 6px;
+  z-index: 0;
+}
+.awx-card-cvc {
+  border-radius: 0 0 6px 0;
+  z-index: 0;
+}
+
+.awx-error {
+  margin: 4px auto 0px 0px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #d91807;
+}

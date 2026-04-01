@@ -1,0 +1,1 @@
+<div class="local-payment-method">${Resource.msg('paymentMethods.' + payment.awxPaymentMethodType, 'airwallex', payment.awxPaymentMethodType || 'Please return to the previous step and select a payment method.')}</div>

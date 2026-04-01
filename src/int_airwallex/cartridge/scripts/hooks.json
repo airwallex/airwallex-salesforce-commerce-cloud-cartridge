@@ -1,0 +1,20 @@
+{
+  "hooks": [
+    {
+      "name": "app.payment.processor.airwallex_online",
+      "script": "./hooks/payment/processor/airwallex_online"
+    },
+    {
+      "name": "app.payment.form.processor.airwallex_online",
+      "script": "./hooks/payment/processor/airwallex_online_form_processor"
+    },
+    {
+      "name": "app.payment.processor.airwallex_credit_card",
+      "script": "./hooks/payment/processor/airwallex_credit_card"
+    },
+    {
+      "name": "app.payment.form.processor.airwallex_credit_card",
+      "script": "./hooks/payment/processor/airwallex_credit_card_form_processor"
+    }
+  ]
+}

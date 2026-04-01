@@ -1,0 +1,6 @@
+<div class="credit-card-type">
+    ${Resource.msg('cardBrand.' + payment.creditCardBrand.split(' ').join('_'), 'airwallex', '-')}
+</div>
+<div class="credit-card-number">
+    ${payment.maskedCreditCardNumber}
+</div>

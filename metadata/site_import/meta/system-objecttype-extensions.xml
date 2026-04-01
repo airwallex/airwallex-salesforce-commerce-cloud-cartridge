@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    <type-extension type-id="SitePreferences">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="awx_v1_environment">
+                <display-name xml:lang="x-default">Environment</display-name>
+                <description xml:lang="x-default">The Airwallex environment to connect to</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <value>demo</value>
+                    </value-definition>
+                    <value-definition>
+                        <value>production</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_client_id_demo">
+                <display-name xml:lang="x-default">Client ID (Demo)</display-name>
+                <description xml:lang="x-default">Airwallex client ID (Demo)</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_client_id_production">
+                <display-name xml:lang="x-default">Client ID (Production)</display-name>
+                <description xml:lang="x-default">Airwallex client ID (Production)</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_api_key_demo">
+                <display-name xml:lang="x-default">API Key (Demo)</display-name>
+                <description xml:lang="x-default">Airwallex API Key (Demo)</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_api_key_production">
+                <display-name xml:lang="x-default">API Key (Production)</display-name>
+                <description xml:lang="x-default">Airwallex API Key (Production)</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_webhook_secret_demo">
+                <display-name xml:lang="x-default">Webhook Secret (Demo)</display-name>
+                <description xml:lang="x-default">Airwallex Webhook Secret (Demo)</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_webhook_secret_production">
+                <display-name xml:lang="x-default">Webhook Secret (Production)</display-name>
+                <description xml:lang="x-default">Airwallex Webhook Secret (Production)</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_card_scheme_demo">
+                <display-name xml:lang="x-default">Card Schemes (Demo)</display-name>
+                <description xml:lang="x-default">Comma-separated card scheme names for Demo</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_card_scheme_production">
+                <display-name xml:lang="x-default">Card Schemes (Production)</display-name>
+                <description xml:lang="x-default">Comma-separated card scheme names for Production</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_express_checkout_demo">
+                <display-name xml:lang="x-default">Express Checkout (Demo)</display-name>
+                <description xml:lang="x-default">Comma-separated express checkout payment method names for Demo</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_express_checkout_production">
+                <display-name xml:lang="x-default">Express Checkout (Production)</display-name>
+                <description xml:lang="x-default">Comma-separated express checkout payment method names for Production</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_all_payment_methods_demo">
+                <display-name xml:lang="x-default">All Payment Methods (Demo)</display-name>
+                <description xml:lang="x-default">Comma-separated payment method names for Demo</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_all_payment_methods_production">
+                <display-name xml:lang="x-default">All Payment Methods (Production)</display-name>
+                <description xml:lang="x-default">Comma-separated payment method names for Production</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_auto_capture_demo">
+                <display-name xml:lang="x-default">Auto Capture (Demo)</display-name>
+                <description xml:lang="x-default">Payment is automatically captured when the order is placed (Demo)</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_auto_capture_production">
+                <display-name xml:lang="x-default">Auto Capture (Production)</display-name>
+                <description xml:lang="x-default">Payment is automatically captured when the order is placed (Production)</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Airwallex">
+                <display-name xml:lang="x-default">Airwallex Settings</display-name>
+                <attribute attribute-id="awx_v1_environment"/>
+                <attribute attribute-id="awx_v1_client_id_demo"/>
+                <attribute attribute-id="awx_v1_client_id_production"/>
+                <attribute attribute-id="awx_v1_api_key_demo"/>
+                <attribute attribute-id="awx_v1_api_key_production"/>
+                <attribute attribute-id="awx_v1_webhook_secret_demo"/>
+                <attribute attribute-id="awx_v1_webhook_secret_production"/>
+                <attribute attribute-id="awx_v1_card_scheme_demo"/>
+                <attribute attribute-id="awx_v1_card_scheme_production"/>
+                <attribute attribute-id="awx_v1_express_checkout_demo"/>
+                <attribute attribute-id="awx_v1_express_checkout_production"/>
+                <attribute attribute-id="awx_v1_all_payment_methods_demo"/>
+                <attribute attribute-id="awx_v1_all_payment_methods_production"/>
+                <attribute attribute-id="awx_v1_auto_capture_demo"/>
+                <attribute attribute-id="awx_v1_auto_capture_production"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="Basket">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="awxPaymentIntentId">
+                <display-name xml:lang="x-default">Airwallex Payment ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxPaymentIntentClientSecret">
+                <display-name xml:lang="x-default">Airwallex Client Secret</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxReservedOrderNo">
+                <display-name xml:lang="x-default">Airwallex Reserved Order Number</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxPaymentIntentParamsFingerprint">
+                <display-name xml:lang="x-default">Airwallex Payment Intent Params Fingerprint</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+    </type-extension>
+
+    <type-extension type-id="Order">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="awxPaymentIntentId">
+                <display-name xml:lang="x-default">Airwallex Payment ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxPaymentIntentStatus">
+                <display-name xml:lang="x-default">Airwallex Payment Status</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxTransactionId">
+                <display-name xml:lang="x-default">Airwallex Transaction ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxPaymentMethodType">
+                <display-name xml:lang="x-default">Airwallex Payment Method Type</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxAmount">
+                <display-name xml:lang="x-default">Amount</display-name>
+                <type>double</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxCurrency">
+                <display-name xml:lang="x-default">Currency</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxCapturedAmount">
+                <display-name xml:lang="x-default">Captured Amount</display-name>
+                <type>double</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxRefundedAmount">
+                <display-name xml:lang="x-default">Refunded Amount</display-name>
+                <type>double</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="airwallexPayment">
+                <display-name xml:lang="x-default">Airwallex Payment</display-name>
+                <attribute attribute-id="awxPaymentIntentId"/>
+                <attribute attribute-id="awxPaymentIntentStatus"/>
+                <attribute attribute-id="awxCapturedAmount"/>
+                <attribute attribute-id="awxRefundedAmount"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="OrderPaymentInstrument">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="awxPaymentIntentId">
+                <display-name xml:lang="x-default">Airwallex Payment ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxPaymentIntentClientSecret">
+                <display-name xml:lang="x-default">Airwallex Client Secret</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxPaymentIntentStatus">
+                <display-name xml:lang="x-default">Airwallex Payment Status</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxPaymentIntentCurrency">
+                <display-name xml:lang="x-default">Currency</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="awxPaymentMethodType">
+                <display-name xml:lang="x-default">Payment Method Type</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+    </type-extension>
+</metadata>
+

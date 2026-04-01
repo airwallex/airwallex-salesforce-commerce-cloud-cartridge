@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    <custom-type type-id="AirwallexWebhookEvent">
+        <display-name xml:lang="x-default">Airwallex Webhook Event</display-name>
+        <description xml:lang="x-default">Queue for processing Airwallex webhook events asynchronously</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="eventId">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="eventId">
+                <display-name xml:lang="x-default">Event ID</display-name>
+                <description xml:lang="x-default">Unique identifier of the webhook event from Airwallex</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="eventName">
+                <display-name xml:lang="x-default">Event Name</display-name>
+                <description xml:lang="x-default">Type of webhook event (e.g., payment_intent.succeeded)</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="payload">
+                <display-name xml:lang="x-default">Payload</display-name>
+                <description xml:lang="x-default">Full JSON payload of the webhook event</description>
+                <type>text</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="status">
+                <display-name xml:lang="x-default">Status</display-name>
+                <description xml:lang="x-default">Processing status of the event</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <value>PENDING</value>
+                    </value-definition>
+                    <value-definition>
+                        <value>PROCESSING</value>
+                    </value-definition>
+                    <value-definition>
+                        <value>COMPLETED</value>
+                    </value-definition>
+                    <value-definition>
+                        <value>FAILED</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="retryCount">
+                <display-name xml:lang="x-default">Retry Count</display-name>
+                <description xml:lang="x-default">Number of times processing has been attempted</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>0</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="errorMessage">
+                <display-name xml:lang="x-default">Error Message</display-name>
+                <description xml:lang="x-default">Error message if processing failed</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="createdAt">
+                <display-name xml:lang="x-default">Created At</display-name>
+                <description xml:lang="x-default">Timestamp when the event was received</description>
+                <type>datetime</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="processedAt">
+                <display-name xml:lang="x-default">Processed At</display-name>
+                <description xml:lang="x-default">Timestamp when the event was successfully processed</description>
+                <type>datetime</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="WebhookEventDetails">
+                <display-name xml:lang="x-default">Webhook Event Details</display-name>
+                <attribute attribute-id="eventId"/>
+                <attribute attribute-id="eventName"/>
+                <attribute attribute-id="payload"/>
+                <attribute attribute-id="status"/>
+                <attribute attribute-id="retryCount"/>
+                <attribute attribute-id="errorMessage"/>
+                <attribute attribute-id="createdAt"/>
+                <attribute attribute-id="processedAt"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+</metadata>

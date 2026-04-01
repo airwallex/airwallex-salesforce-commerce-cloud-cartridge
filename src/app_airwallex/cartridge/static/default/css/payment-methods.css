@@ -1,0 +1,89 @@
+.awx-payment-method-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background-color: white;
+  border: 1px solid #e8eaed;
+  border-radius: 6px;
+  padding: 16px 24px;
+}
+
+.awx-payment-method-container + .awx-payment-method-container {
+  margin-top: 16px;
+}
+
+.awx-payment-method-radio {
+  width: 16px;
+  height: 16px;
+  background-color: rgb(255, 255, 255);
+  border-color: rgb(135, 142, 153);
+  color: currentcolor;
+  margin: 0px;
+  border-width: 1.5px;
+  font: inherit;
+  display: grid;
+  cursor: pointer;
+  appearance: none;
+  border-radius: 50%;
+  border-style: solid;
+  place-content: center;
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+}
+.awx-payment-method-radio:checked {
+  border-color: rgb(97, 47, 255);
+}
+.awx-payment-method-radio::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background-color: rgb(97, 47, 255);
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 120ms ease-in-out;
+}
+.awx-payment-method-radio:checked::before {
+  transform: scale(1);
+}
+
+.awx-payment-method-icon {
+  width: 30px;
+  margin-left: 16px;
+}
+
+.awx-payment-method-large-icon {
+  width: 40px;
+  margin-left: 32px;
+}
+
+.awx-payment-method-name {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 500;
+  color: #1b1f21;
+  margin-left: 4px;
+}
+
+.awx-payment-method-description {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+  color: #1b1f21;
+  margin-left: 8px;
+  margin-bottom: 0;
+}
+
+.awx-payment-method-section {
+  display: flex;
+  align-items: center;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Keep the same style as the grand total row */
+.awx-pay-amount-row {
+  font-size: 1.125rem !important;
+  font-weight: 600;
+}
