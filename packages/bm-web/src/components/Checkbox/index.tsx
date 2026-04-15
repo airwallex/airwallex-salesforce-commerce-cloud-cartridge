@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckboxWrapper, CheckboxContainer, CheckboxBox, CheckboxInput, CheckboxLabel } from './styles';
 
 export interface CheckboxProps {
@@ -8,6 +9,7 @@ export interface CheckboxProps {
 }
 
 const Checkbox = ({ checked, onChange, children }: CheckboxProps) => {
+  const { t } = useTranslation();
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange?.(event.target.checked);
   };
@@ -29,7 +31,7 @@ const Checkbox = ({ checked, onChange, children }: CheckboxProps) => {
           type="checkbox"
           role="checkbox"
           aria-checked={checked}
-          aria-label="Checkbox"
+          aria-label={t('accessibility.checkbox')}
           checked={checked}
           onChange={handleChange}
         />

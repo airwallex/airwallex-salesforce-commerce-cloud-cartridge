@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+import { useTranslation } from 'react-i18next';
 
 import banIcon from '@/assets/ban.svg?inline';
 import { Container, EnvironmentName } from './styles';
@@ -7,6 +8,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { getEnvironmentName } from '@/utils/environment';
 
 const ActiveEnvironment = () => {
+  const { t } = useTranslation();
   const { settings } = useSettings();
   const environment = settings.environment;
 
@@ -23,10 +25,10 @@ const ActiveEnvironment = () => {
           css={css`
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
           `}
         >
-          <Headline variant="200">Active Environment:</Headline>
+          <Headline variant="200">{t('activeEnvironment.title')}</Headline>
           <EnvironmentName active={!!environment}>
             {environment ? (
               getEnvironmentName(environment)
@@ -38,13 +40,13 @@ const ActiveEnvironment = () => {
                   gap: 4px;
                 `}
               >
-                <img src={banIcon} alt="not connected" />
-                Not connected
+                <img src={banIcon} alt={t('activeEnvironment.notConnectedAlt')} />
+                {t('activeEnvironment.notConnected')}
               </span>
             )}
           </EnvironmentName>
         </div>
-        {!environment && <Body variant="subtle">Configure Production or Sandbox to activate Airwallex payments.</Body>}
+        {!environment && <Body variant="subtle">{t('activeEnvironment.configureHint')}</Body>}
       </div>
     </Container>
   );

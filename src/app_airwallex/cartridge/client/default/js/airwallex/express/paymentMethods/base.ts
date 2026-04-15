@@ -42,7 +42,7 @@ export abstract class ExpressCheckout<TButtonType extends ButtonType = ButtonTyp
     if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
       return error.message;
     }
-    return 'An unexpected error occurred';
+    return window.i18nResources.unexpectedError;
   }
 
   public async createElement(container: HTMLDivElement): Promise<ButtonTypeToElementType[TButtonType]> {

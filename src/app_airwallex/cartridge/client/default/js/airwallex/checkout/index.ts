@@ -6,6 +6,7 @@ import {
   validateCardForm,
 } from './billing';
 import { renderExpressCheckout } from '../express/index';
+import { initAirwallexSDK } from '../utils/sdk';
 import type { Order } from '../../types';
 
 const selectPaymentMethod = (methodId: string) => {
@@ -83,16 +84,6 @@ const setupUIElements = () => {
   if (stage === 'placeOrder') {
     $('.place-order').hide();
   }
-};
-
-const initAirwallexSDK = async(): Promise<void> => {
-  await window.AirwallexComponentsSDK.init({
-    locale: 'en',
-    // @ts-ignore
-    env: window.airwallexConfig.environment,
-    // @ts-ignore
-    enabledElements: ['payments'],
-  });
 };
 
 const init = (): void => {

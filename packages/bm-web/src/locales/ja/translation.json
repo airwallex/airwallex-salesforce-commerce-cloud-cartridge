@@ -1,0 +1,88 @@
+{
+  "environment.sandbox": "サンドボックス",
+  "environment.production": "本番環境",
+  "environment.unknown": "不明",
+
+  "activeEnvironment.title": "アクティブな環境:",
+  "activeEnvironment.notConnected": "未接続",
+  "activeEnvironment.notConnectedAlt": "未接続",
+  "activeEnvironment.configureHint": "Airwallex決済を有効にするには、本番環境またはサンドボックスを設定してください。",
+
+  "environmentSettings.title": "{{environment}}設定",
+  "environmentSettings.demo.description": "実際のお金を使わずに支払いフローをテスト",
+  "environmentSettings.production.description": "実際の支払いを受け付けて資金を決済",
+  "environmentSettings.emptyState.demo.title": "{{environment}}を設定",
+  "environmentSettings.emptyState.demo.description": "認証情報を追加して、チェックアウトの体験をシミュレーションします。",
+  "environmentSettings.emptyState.production.title": "{{environment}}を設定",
+  "environmentSettings.emptyState.production.description": "認証情報を追加して実際の取引処理を開始する",
+
+  "credentials.title": "環境認証情報",
+  "credentials.description": "Airwallexアカウントを接続して、支払いの処理とデータの同期を行います",
+  "credentials.clientId": "クライアントID",
+  "credentials.apiKey": "APIキー",
+  "credentials.verify": "検証",
+  "credentials.hint": "Airwallex開発者設定で認証情報を生成します。",
+  "credentials.connectionSuccess": "接続に成功しました",
+  "credentials.connectionFailed": "接続に失敗しました",
+
+  "webhook.url": "Webhook URL",
+  "webhook.urlHint": "このURLをコピーしてAirwallex設定に貼り付け、Webhookシークレットキーを生成してください",
+  "webhook.secret": "Webhookシークレット",
+
+  "paymentMethods.title": "支払い方法",
+  "paymentMethods.description": "チェックアウトに表示する支払いオプションを選択してください",
+  "paymentMethods.cardSchemes": "カードブランド",
+  "paymentMethods.expressCheckout": "エクスプレスチェックアウト",
+  "paymentMethods.additional": "追加の支払い方法",
+
+  "captureMethod.title": "支払いキャプチャ方法",
+  "captureMethod.description": "「オーソリのみ」を選択した場合、Airwallexで手動で資金をキャプチャする必要があります。保留をサポートしていない方法で行われた支払いは、引き続き自動的にキャプチャされます。",
+  "captureMethod.authorizeCapture": "オーソリおよびキャプチャ",
+  "captureMethod.authorizeOnly": "オーソリのみ",
+
+  "actions.edit": "編集",
+  "actions.configure": "設定",
+  "actions.cancel": "キャンセル",
+  "actions.save": "保存",
+  "actions.confirm": "確認",
+  "actions.close": "閉じる",
+  "actions.activate": "{{environment}}をアクティブ化",
+
+  "tag.active": "アクティブ",
+
+  "editDisabled.tooltip": "Save or cancel your open edits to configure this environment.",
+
+  "modal.enableLivePayments.title": "ライブ決済を有効にしますか？",
+  "modal.enableLivePayments.message": "ストアのルーティングがサンドボックスから切り替わり、ただちに実際の取引の処理を開始します",
+  "modal.enableLivePayments.confirm": "本番環境をアクティブ化",
+  "modal.disableLivePayments.title": "ライブ決済を無効にしますか？",
+  "modal.disableLivePayments.message": "サンドボックスに切り替えると、ストアでの実際の取引処理が停止します。すべての新しいチェックアウトはテスト環境にルーティングされます。",
+  "modal.disableLivePayments.confirm": "サンドボックスに切り替え",
+
+  "alerts.environmentActivated": "{{environment}}がアクティブになりました",
+  "alerts.settingsSaved": "{{environment}}設定が正常に保存されました",
+  "alerts.failedToUpdateEnvironment": "環境の更新に失敗しました",
+  "alerts.failedToSaveSettings": "設定の保存に失敗しました",
+  "alerts.copied": "コピー完了！",
+
+  "quickLinks.title": "クイックリンク",
+  "quickLinks.paymentMethods": "支払い方法の概要",
+  "quickLinks.sandboxOverview": "サンドボックス環境の概要",
+
+  "select.selectAll": "すべて選択",
+  "select.deselectAll": "すべての選択を解除",
+
+  "paymentIconList.more": "+{{count}} more",
+
+  "accessibility.airwallexLogo": "Airwallexロゴ",
+  "accessibility.passwordVisibility": "パスワードの表示",
+  "accessibility.copy": "コピー",
+  "accessibility.checkbox": "チェックボックス",
+  "accessibility.toggleSwitch": "トグルスイッチ",
+
+  "errors.requestFailed": "リクエストに失敗しました",
+  "errors.unknownError": "不明なエラーが発生しました",
+  "errors.paymentMethodTypesNotConfigured": "支払い方法タイプのエンドポイントが設定されていません",
+  "errors.failedToFetchPaymentMethodTypes": "支払い方法タイプの取得に失敗しました",
+  "errors.saveEndpointNotConfigured": "保存エンドポイントが設定されていません"
+}

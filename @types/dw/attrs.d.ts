@@ -185,6 +185,11 @@ declare class CustomerPaymentInstrumentCustomAttributes {
   /**
    * Returns the custom attribute with this name. Throws an exception if attribute is not defined
    */
+  awxPaymentIntentId: string;
+  awxPaymentIntentClientSecret: string;
+  awxPaymentIntentCurrency: string;
+  awxContinueUrl: string;
+  awxPaymentMethodType: string;
   [name: string]: any;
 }
 

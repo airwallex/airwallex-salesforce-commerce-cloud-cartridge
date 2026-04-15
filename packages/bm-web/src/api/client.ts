@@ -2,6 +2,8 @@
  * Base API client with reusable fetch configuration and error handling
  */
 
+import i18n from '@/utils/i18n';
+
 export type ApiResult<T = void> = { success: true; data?: T } | { success: false; error: string };
 
 export type ApiResponseBody = {
@@ -42,7 +44,7 @@ export async function requestApi<TRequest, TResponse extends ApiResponseBody>(
     if (!data.success) {
       return {
         success: false,
-        error: data.message ?? 'Request failed',
+        error: data.message ?? i18n.t('errors.requestFailed'),
       };
     }
 
@@ -50,7 +52,7 @@ export async function requestApi<TRequest, TResponse extends ApiResponseBody>(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      error: error instanceof Error ? error.message : i18n.t('errors.unknownError'),
     };
   }
 }

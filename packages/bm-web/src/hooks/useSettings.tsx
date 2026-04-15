@@ -1,4 +1,5 @@
 import { useContext, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SettingsContext } from '@/contexts/settings';
 import { saveSettings } from '@/api';
 import type { SaveSettingsRequest } from '@/api';
@@ -67,6 +68,7 @@ export type SubmitSettingsResult = {
 };
 
 export const useSettings = () => {
+  const { t } = useTranslation();
   const { settings, setSettings, updateSetting } = useSettingsContext();
 
   const getSetting = <K extends keyof Settings>(key: K): Settings[K] => {
@@ -89,10 +91,10 @@ export const useSettings = () => {
       }
       return {
         success: false,
-        error: result.error ?? 'Failed to save settings',
+        error: result.error ?? t('alerts.failedToSaveSettings'),
       };
     },
-    [settings],
+    [settings, t],
   );
 
   return {

@@ -12,11 +12,11 @@
         <input class="awx-payment-method-radio" type="radio" value="AirwallexOnline" data-content="#lpm-content"
             data-pane="#lpm-pane" />
         <img class="awx-payment-method-icon" src="${URLUtils.staticURL('/images/local-payment-method.svg')}"
-            alt="Local Payment Method" />
-        <span class="awx-payment-method-name">Local Payment Method</span>
+            alt="${Resource.msg('alt.localPaymentMethod', 'airwallex', null)}" />
+        <span class="awx-payment-method-name">${Resource.msg('label.localPaymentMethod', 'airwallex', null)}</span>
     </div>
     <div class="awx-payment-method-section" id="lpm-content">
-        <img class="awx-payment-method-large-icon" src="${URLUtils.staticURL('/images/proceed.svg')}" alt="Proceed" />
-        <p class="awx-payment-method-description">After selecting “Next: Place order”, you may select the preferred payment method to securely complete your purchase.</p>
+        <img class="awx-payment-method-large-icon" src="${URLUtils.staticURL('/images/proceed.svg')}" alt="${Resource.msg('alt.proceed', 'airwallex', null)}" />
+        <p class="awx-payment-method-description">${Resource.msg('label.lpmDescription', 'airwallex', null)}</p>
     </div>
 </div>

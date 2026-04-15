@@ -1,0 +1,88 @@
+{
+  "environment.sandbox": "ארגז חול",
+  "environment.production": "סביבת ייצור",
+  "environment.unknown": "לא ידוע",
+
+  "activeEnvironment.title": "סביבה פעילה:",
+  "activeEnvironment.notConnected": "לא מחובר",
+  "activeEnvironment.notConnectedAlt": "לא מחובר",
+  "activeEnvironment.configureHint": "הגדר את סביבת הייצור או ארגז החול כדי להפעיל תשלומי Airwallex.",
+
+  "environmentSettings.title": "הגדרות {{environment}}",
+  "environmentSettings.demo.description": "בדוק תהליכי תשלום ללא כסף אמיתי",
+  "environmentSettings.production.description": "קבל תשלומים אמיתיים וסלק כספים",
+  "environmentSettings.emptyState.demo.title": "הגדר {{environment}}",
+  "environmentSettings.emptyState.demo.description": "הוסף את פרטי הגישה שלך כדי לדמות את חווית התשלום.",
+  "environmentSettings.emptyState.production.title": "הגדר {{environment}}",
+  "environmentSettings.emptyState.production.description": "הוסף את פרטי הגישה שלך כדי להתחיל לעבד עסקאות חיות.",
+
+  "credentials.title": "פרטי גישה לסביבה",
+  "credentials.description": "חבר את חשבון ה-Airwallex שלך כדי לעבד תשלומים ולסנכרן נתונים",
+  "credentials.clientId": "מזהה לקוח (Client ID)",
+  "credentials.apiKey": "מפתח API",
+  "credentials.verify": "אימות",
+  "credentials.hint": "צור פרטי גישה בהגדרות המפתחים של Airwallex.",
+  "credentials.connectionSuccess": "החיבור הצליח",
+  "credentials.connectionFailed": "החיבור נכשל",
+
+  "webhook.url": "כתובת Webhook",
+  "webhook.urlHint": "העתק כתובת זו והדבק אותה בהגדרות Airwallex כדי ליצור את מפתח הסוד של ה-Webhook שלך",
+  "webhook.secret": "סוד Webhook",
+
+  "paymentMethods.title": "אמצעי תשלום",
+  "paymentMethods.description": "בחר את אפשרויות התשלום שיוצגו בקופה",
+  "paymentMethods.cardSchemes": "סוגי כרטיסים",
+  "paymentMethods.expressCheckout": "תשלום מהיר (Express checkout)",
+  "paymentMethods.additional": "אמצעי תשלום נוספים",
+
+  "captureMethod.title": "שיטת לכידת תשלום",
+  "captureMethod.description": "אם נבחר \"אישור בלבד\", תצטרך ללכוד ידנית את הכספים ב-Airwallex. תשלומים שבוצעו באמצעות שיטות שאינן תומכות בהחזקה עדיין יילכדו באופן אוטומטי.",
+  "captureMethod.authorizeCapture": "אישור ולכידה",
+  "captureMethod.authorizeOnly": "אישור בלבד",
+
+  "actions.edit": "ערוך",
+  "actions.configure": "הגדר",
+  "actions.cancel": "ביטול",
+  "actions.save": "שמור",
+  "actions.confirm": "אשר",
+  "actions.close": "סגור",
+  "actions.activate": "הפעל {{environment}}",
+
+  "tag.active": "פעיל",
+
+  "editDisabled.tooltip": "Save or cancel your open edits to configure this environment.",
+
+  "modal.enableLivePayments.title": "להפעיל תשלומים חיים?",
+  "modal.enableLivePayments.message": "החנות שלך תפסיק לנתב לארגז החול ותתחיל מיד לעבד עסקאות אמיתיות",
+  "modal.enableLivePayments.confirm": "הפעל סביבת ייצור",
+  "modal.disableLivePayments.title": "להשבית תשלומים חיים?",
+  "modal.disableLivePayments.message": "המעבר לארגז החול יעצור את עיבוד העסקאות האמיתיות בחנות שלך. כל התשלומים החדשים ינותבו לסביבת הבדיקות שלך.",
+  "modal.disableLivePayments.confirm": "עבור לארגז החול",
+
+  "alerts.environmentActivated": "{{environment}} הופעלה",
+  "alerts.settingsSaved": "הגדרות {{environment}} נשמרו בהצלחה",
+  "alerts.failedToUpdateEnvironment": "עדכון הסביבה נכשל",
+  "alerts.failedToSaveSettings": "שמירת ההגדרות נכשלה",
+  "alerts.copied": "הועתק!",
+
+  "quickLinks.title": "קישורים מהירים",
+  "quickLinks.paymentMethods": "סקירת אמצעי תשלום",
+  "quickLinks.sandboxOverview": "סקירת סביבת ארגז חול",
+
+  "select.selectAll": "בחר הכל",
+  "select.deselectAll": "בטל בחירת הכל",
+
+  "paymentIconList.more": "+{{count}} more",
+
+  "accessibility.airwallexLogo": "לוגו Airwallex",
+  "accessibility.passwordVisibility": "הצגת סיסמה",
+  "accessibility.copy": "העתק",
+  "accessibility.checkbox": "תיבת סימון",
+  "accessibility.toggleSwitch": "מתג החלפה",
+
+  "errors.requestFailed": "הבקשה נכשלה",
+  "errors.unknownError": "אירעה שגיאה לא ידועה",
+  "errors.paymentMethodTypesNotConfigured": "נקודת הקצה של סוגי אמצעי התשלום אינה מוגדרת",
+  "errors.failedToFetchPaymentMethodTypes": "הבאת סוגי אמצעי התשלום נכשלה",
+  "errors.saveEndpointNotConfigured": "נקודת הקצה לשמירה אינה מוגדרת"
+}

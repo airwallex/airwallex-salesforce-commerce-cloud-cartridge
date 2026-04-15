@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import Button from '@/components/Button';
+import Tooltip from '@/components/Tooltip';
 import { SettingHeaderContainer, TextContainer, ButtonsContainer } from './styles';
 
 import type { ReactNode } from 'react';
@@ -13,6 +15,8 @@ export interface SettingHeaderProps {
   loading?: boolean;
   saveDisabled?: boolean;
   editButtonText?: string;
+  editDisabled?: boolean;
+  editDisabledTooltip?: string;
   showActivate?: boolean;
   activateButtonText?: string;
   activateButtonVariant?: 'primary' | 'secondary';
@@ -28,12 +32,23 @@ const SettingHeader = ({
   onSave,
   loading = false,
   saveDisabled = false,
-  editButtonText = 'Edit',
+  editButtonText,
+  editDisabled = false,
+  editDisabledTooltip,
   showActivate = false,
-  activateButtonText = 'Activate',
+  activateButtonText,
   activateButtonVariant = 'primary',
   onActivate,
 }: SettingHeaderProps) => {
+  const { t } = useTranslation();
+  const resolvedEditButtonText = editButtonText ?? t('actions.edit');
+  const resolvedActivateButtonText = activateButtonText ?? t('actions.activate', { environment: '' }).trim();
+  const editButton = (
+    <Button variant="secondary" onClick={onEdit} disabled={loading || editDisabled}>
+      {resolvedEditButtonText}
+    </Button>
+  );
+
   return (
     <SettingHeaderContainer>
       <TextContainer>
@@ -44,20 +59,22 @@ const SettingHeader = ({
         {editing ? (
           <>
             <Button variant="secondary" onClick={onCancel} disabled={loading}>
-              Cancel
+              {t('actions.cancel')}
             </Button>
             <Button variant="primary" onClick={onSave} disabled={loading || saveDisabled} loading={loading}>
-              Save
+              {t('actions.save')}
             </Button>
           </>
         ) : (
           <>
-            <Button variant="secondary" onClick={onEdit} disabled={loading}>
-              {editButtonText}
-            </Button>
+            {editDisabled && editDisabledTooltip ? (
+              <Tooltip content={editDisabledTooltip}>{editButton}</Tooltip>
+            ) : (
+              editButton
+            )}
             {showActivate && onActivate && (
               <Button variant={activateButtonVariant} onClick={onActivate} disabled={loading} loading={loading}>
-                {activateButtonText}
+                {resolvedActivateButtonText}
               </Button>
             )}
           </>

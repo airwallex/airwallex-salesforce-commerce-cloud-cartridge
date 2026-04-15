@@ -106,7 +106,7 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
       this.element!.completeValidation(merchantSession);
     } catch {
       this.element?.update({
-        errors: [{ code: 'unknown', message: 'Merchant validation failed' }],
+        errors: [{ code: 'unknown', message: window.i18nResources.merchantValidationFailed }],
       });
     }
   };
@@ -145,7 +145,7 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
         updateOptions.shippingMethods = ApplePay.formatShippingOptions(shippingOptions);
         updateOptions.amount = grandTotal;
       } else {
-        updateOptions.errors = [{ code: 'addressUnserviceable', message: 'No shipping options available' }];
+        updateOptions.errors = [{ code: 'addressUnserviceable', message: window.i18nResources.noShippingOptions }];
       }
     } catch (error: unknown) {
       updateOptions.errors = [{ code: 'addressUnserviceable', message: this.getErrorMessage(error) }];
@@ -168,7 +168,7 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
         const { grandTotal } = await ApplePay.selectShippingOption(matchedOption);
         updateOptions.amount = grandTotal;
       } else {
-        updateOptions.errors = [{ code: 'addressUnserviceable', message: 'Cannot ship with the selected method' }];
+        updateOptions.errors = [{ code: 'addressUnserviceable', message: window.i18nResources.cannotShipWithMethod }];
       }
     } catch (error: unknown) {
       updateOptions.errors = [{ code: 'addressUnserviceable', message: this.getErrorMessage(error) }];

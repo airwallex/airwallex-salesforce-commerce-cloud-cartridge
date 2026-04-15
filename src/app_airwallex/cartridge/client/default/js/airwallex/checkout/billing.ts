@@ -212,7 +212,7 @@ const confirmCardPayment = async({
     });
     window.location.href = continueUrl;
   } catch (error: unknown) {
-    displayError((error as CardPaymentError).message ?? 'Payment failed');
+    displayError((error as CardPaymentError).message ?? window.i18nResources.paymentFailed);
   } finally {
     window.$.spinner().stop();
   }
@@ -273,7 +273,7 @@ const validateCardForm = (): void => {
 
   const allComplete = state.cardNumber?.complete && state.expiry?.complete && state.cvc?.complete;
   if (!allComplete) {
-    displayError('Please complete all the fields.');
+    displayError(window.i18nResources.fieldsIncomplete);
     throw new Error('Required fields not completed');
   }
 };

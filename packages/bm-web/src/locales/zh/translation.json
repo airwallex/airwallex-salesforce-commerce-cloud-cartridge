@@ -1,0 +1,88 @@
+{
+  "environment.sandbox": "沙盒",
+  "environment.production": "生产环境",
+  "environment.unknown": "未知",
+
+  "activeEnvironment.title": "当前环境:",
+  "activeEnvironment.notConnected": "未连接",
+  "activeEnvironment.notConnectedAlt": "未连接",
+  "activeEnvironment.configureHint": "配置生产环境或沙盒以激活 Airwallex 支付。",
+
+  "environmentSettings.title": "{{environment}}设置",
+  "environmentSettings.demo.description": "使用非真实货币测试支付流程",
+  "environmentSettings.production.description": "接受真实支付并结算资金",
+  "environmentSettings.emptyState.demo.title": "配置{{environment}}",
+  "environmentSettings.emptyState.demo.description": "添加您的凭据以模拟结账体验。",
+  "environmentSettings.emptyState.production.title": "配置{{environment}}",
+  "environmentSettings.emptyState.production.description": "添加您的凭据以开始处理实时交易。",
+
+  "credentials.title": "环境凭据",
+  "credentials.description": "连接您的Airwallex帐户以处理支付并同步数据",
+  "credentials.clientId": "客户端 ID",
+  "credentials.apiKey": "API 密钥",
+  "credentials.verify": "验证",
+  "credentials.hint": "在 Airwallex 开发者设置中生成凭据。",
+  "credentials.connectionSuccess": "连接成功",
+  "credentials.connectionFailed": "连接失败",
+
+  "webhook.url": "Webhook URL",
+  "webhook.urlHint": "复制此 URL 并将其粘贴到 Airwallex 设置中以生成您的 webhook 密钥",
+  "webhook.secret": "Webhook 密钥",
+
+  "paymentMethods.title": "支付方式",
+  "paymentMethods.description": "选择要在结账时显示的支付选项",
+  "paymentMethods.cardSchemes": "卡组织",
+  "paymentMethods.expressCheckout": "快速结账",
+  "paymentMethods.additional": "其他支付方式",
+
+  "captureMethod.title": "收款方式",
+  "captureMethod.description": "如果选择\"仅授权\"，您需要在 Airwallex 中手动请款。使用不支持冻结的付款方式进行的付款仍将自动全额请款。",
+  "captureMethod.authorizeCapture": "授权并请款",
+  "captureMethod.authorizeOnly": "仅授权",
+
+  "actions.edit": "编辑",
+  "actions.configure": "配置",
+  "actions.cancel": "取消",
+  "actions.save": "保存",
+  "actions.confirm": "确认",
+  "actions.close": "关闭",
+  "actions.activate": "激活{{environment}}",
+
+  "tag.active": "有效",
+
+  "editDisabled.tooltip": "Save or cancel your open edits to configure this environment.",
+
+  "modal.enableLivePayments.title": "启用实时支付？",
+  "modal.enableLivePayments.message": "您的商店将停止路由到沙盒，并立即开始处理真实交易",
+  "modal.enableLivePayments.confirm": "激活生产环境",
+  "modal.disableLivePayments.title": "禁用实时支付？",
+  "modal.disableLivePayments.message": "切换到沙盒将停止您的商店处理真实交易。所有新的结账将被路由到您的测试环境。",
+  "modal.disableLivePayments.confirm": "切换到沙盒",
+
+  "alerts.environmentActivated": "{{environment}}已激活",
+  "alerts.settingsSaved": "{{environment}}设置保存成功",
+  "alerts.failedToUpdateEnvironment": "更新环境失败",
+  "alerts.failedToSaveSettings": "保存设置失败",
+  "alerts.copied": "已复制！",
+
+  "quickLinks.title": "快速链接",
+  "quickLinks.paymentMethods": "支付方式概览",
+  "quickLinks.sandboxOverview": "沙盒环境概览",
+
+  "select.selectAll": "全选",
+  "select.deselectAll": "取消全选",
+
+  "paymentIconList.more": "+{{count}} more",
+
+  "accessibility.airwallexLogo": "Airwallex 徽标",
+  "accessibility.passwordVisibility": "密码可见性",
+  "accessibility.copy": "复制",
+  "accessibility.checkbox": "复选框",
+  "accessibility.toggleSwitch": "切换开关",
+
+  "errors.requestFailed": "请求失败",
+  "errors.unknownError": "发生未知错误",
+  "errors.paymentMethodTypesNotConfigured": "支付方式类型端点未配置",
+  "errors.failedToFetchPaymentMethodTypes": "获取支付方式类型失败",
+  "errors.saveEndpointNotConfigured": "保存端点未配置"
+}

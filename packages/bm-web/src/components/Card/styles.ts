@@ -12,8 +12,6 @@ export const StyledCard = styled.div`
   position: relative;
   border: 1px solid var(--color-gray-20);
   border-radius: 6px;
-  box-shadow: var(--shadow-card);
-
   & + & {
     margin-top: 40px;
   }

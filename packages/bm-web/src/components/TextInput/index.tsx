@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import eyeOpenIcon from '@/assets/eye-open.svg?inline';
 import eyeClosedIcon from '@/assets/eye-closed.svg?inline';
 import copyIcon from '@/assets/copy.svg?inline';
@@ -22,6 +23,7 @@ export interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const TextInput = ({ label, hint, type, forCopy, value, readOnly, className, ...props }: TextInputProps) => {
+  const { t } = useTranslation();
   const isPassword = type === 'password';
   const isForCopy = forCopy && !isPassword;
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -34,9 +36,9 @@ const TextInput = ({ label, hint, type, forCopy, value, readOnly, className, ...
   const handleCopy = useCallback(() => {
     const text = typeof value === 'string' ? value : String(value ?? '');
     navigator.clipboard.writeText(text).then(() => {
-      alert('Copied!', { variant: 'success' });
+      alert(t('alerts.copied'), { variant: 'success' });
     });
-  }, [value, alert]);
+  }, [value, alert, t]);
 
   const inputType = useMemo(() => {
     if (isPassword) {
@@ -55,12 +57,12 @@ const TextInput = ({ label, hint, type, forCopy, value, readOnly, className, ...
         <TextInputElement hasRightIcon={hasRightIcon} readOnly={isReadOnly} {...props} type={inputType} value={value} />
         {isPassword && (
           <TextInputIcon onClick={handlePasswordVisibility}>
-            <img src={isPasswordVisible ? eyeOpenIcon : eyeClosedIcon} alt="Password visibility" />
+            <img src={isPasswordVisible ? eyeOpenIcon : eyeClosedIcon} alt={t('accessibility.passwordVisibility')} />
           </TextInputIcon>
         )}
         {isForCopy && (
           <TextInputIcon onClick={handleCopy}>
-            <img src={copyIcon} alt="Copy" />
+            <img src={copyIcon} alt={t('accessibility.copy')} />
           </TextInputIcon>
         )}
       </TextInputContainer>

@@ -1,5 +1,5 @@
 import RadioGroup from '@/components/RadioGroup';
-import { AUTO_CAPTURE_OPTIONS } from './labels';
+import { getAutoCaptureOptions } from './labels';
 
 export interface AutoCaptureRadioProps {
   value: boolean;
@@ -8,7 +8,7 @@ export interface AutoCaptureRadioProps {
 
 const AutoCaptureRadio = ({ value, onChange }: AutoCaptureRadioProps) => (
   <RadioGroup
-    options={AUTO_CAPTURE_OPTIONS}
+    options={getAutoCaptureOptions()}
     value={value ? 'auto' : 'authorize_only'}
     onChange={(v) => onChange(v === 'auto')}
   />

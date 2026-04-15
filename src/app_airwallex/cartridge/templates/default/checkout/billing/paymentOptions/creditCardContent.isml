@@ -9,8 +9,8 @@
 </div>
     <div class="awx-payment-method-section">
         <input class="awx-payment-method-radio" type="radio" value="AirwallexCreditCard" data-content="#credit-card-content" data-pane="#credit-card-pane" />
-        <img class="awx-payment-method-icon" src="${URLUtils.staticURL('/images/card-payment.svg')}" alt="Credit Card" />
-        <span class="awx-payment-method-name">Card</span>
+        <img class="awx-payment-method-icon" src="${URLUtils.staticURL('/images/card-payment.svg')}" alt="${Resource.msg('alt.creditCard', 'airwallex', null)}" />
+        <span class="awx-payment-method-name">${Resource.msg('label.card', 'airwallex', null)}</span>
     </div>
     <div id="credit-card-content">
         <isinclude template="checkout/billing/creditCardForm" />

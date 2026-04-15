@@ -1,7 +1,9 @@
-export const AUTO_CAPTURE_OPTIONS = [
-  { value: 'auto' as const, label: 'Authorize & capture' },
-  { value: 'authorize_only' as const, label: 'Authorize only' },
+import i18n from '@/utils/i18n';
+
+export const getAutoCaptureOptions = () => [
+  { value: 'auto' as const, label: i18n.t('captureMethod.authorizeCapture') },
+  { value: 'authorize_only' as const, label: i18n.t('captureMethod.authorizeOnly') },
 ];
 
 export const getAutoCaptureLabel = (value: boolean): string =>
-  value ? AUTO_CAPTURE_OPTIONS[0].label : AUTO_CAPTURE_OPTIONS[1].label;
+  value ? i18n.t('captureMethod.authorizeCapture') : i18n.t('captureMethod.authorizeOnly');

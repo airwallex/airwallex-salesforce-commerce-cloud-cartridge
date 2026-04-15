@@ -1,4 +1,5 @@
 import { useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactSelect, {
   mergeStyles,
   components as defaultComponents,
@@ -35,12 +36,13 @@ function Select<Option = unknown, IsMulti extends boolean = false>(props: Select
     ...rest
   } = props;
 
+  const { t } = useTranslation();
   const baseStyles = selectStyles() as StylesConfig<Option, IsMulti, GroupBase<Option>>;
   const isMulti = rest.isMulti === true;
 
   const selectAllOption = useMemo(
-    () => ({ value: SELECT_ALL_VALUE, label: 'Select all' }) as Option & { value: string; label: string },
-    [],
+    () => ({ value: SELECT_ALL_VALUE, label: t('select.selectAll') }) as Option & { value: string; label: string },
+    [t],
   );
 
   const allSelected = useMemo(() => {
@@ -53,10 +55,10 @@ function Select<Option = unknown, IsMulti extends boolean = false>(props: Select
     if (!showSelectAll || !isMulti) return options;
     const selectAll = {
       ...selectAllOption,
-      label: allSelected ? 'Deselect all' : 'Select all',
+      label: allSelected ? t('select.deselectAll') : t('select.selectAll'),
     } as Option & { value: string; label: string };
     return [selectAll, ...options] as Option[];
-  }, [showSelectAll, isMulti, options, selectAllOption, allSelected]);
+  }, [showSelectAll, isMulti, options, selectAllOption, allSelected, t]);
 
   const selectedOptions = useMemo(() => {
     if (!showSelectAll || !isMulti) return value;
@@ -98,11 +100,11 @@ function Select<Option = unknown, IsMulti extends boolean = false>(props: Select
   const mergedFormatOptionLabel = useCallback(
     (option: Option, meta: Parameters<NonNullable<Props<Option, true>['formatOptionLabel']>>[1]) => {
       if (showSelectAll && getOptionValue(option as Option & Record<string, unknown>) === SELECT_ALL_VALUE) {
-        return allSelected ? 'Deselect all' : 'Select all';
+        return allSelected ? t('select.deselectAll') : t('select.selectAll');
       }
       return formatOptionLabel ? formatOptionLabel(option, meta) : ((option as { label?: string }).label ?? '');
     },
-    [showSelectAll, allSelected, formatOptionLabel, getOptionValue],
+    [showSelectAll, allSelected, formatOptionLabel, getOptionValue, t],
   );
 
   const mergedComponents = useMemo(() => {

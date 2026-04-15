@@ -8,6 +8,7 @@ declare global {
       getPaymentMethodTypes?: string;
     };
     airwallexBusinessManager: Settings;
+    userLocale?: string;
   }
 }
 

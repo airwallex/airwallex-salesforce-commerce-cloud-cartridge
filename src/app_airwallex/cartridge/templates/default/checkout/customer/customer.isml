@@ -1,8 +1,8 @@
 <!-- Airwallex Express Checkout -->
 <isinclude template="airwallex/expressCheckout" />
 <div id="awx-express-checkout" class="awx-express-checkout">
-    <div id="awx-google-pay" class="awx-express-checkout-item"></div>
     <div id="awx-apple-pay" class="awx-express-checkout-item"></div>
+    <div id="awx-google-pay" class="awx-express-checkout-item"></div>
 </div>
 
 <!-- StoreFront Customer Section -->
