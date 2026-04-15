@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@/components/Button';
 import { Headline, Body } from '@/components/Typography';
@@ -24,11 +25,15 @@ const Modal = ({
   onConfirm,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   loading = false,
   confirmButtonVariant = 'primary',
 }: ModalProps) => {
+  const { t } = useTranslation();
+  const resolvedConfirmText = confirmText ?? t('actions.confirm');
+  const resolvedCancelText = cancelText ?? t('actions.cancel');
+
   if (!open) return null;
 
   const handleConfirm = async () => {
@@ -38,7 +43,12 @@ const Modal = ({
   return (
     <Overlay onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <Panel onClick={(e) => e.stopPropagation()}>
-        <CloseButton onClick={loading ? undefined : onClose} type="button" aria-label="Close" disabled={loading}>
+        <CloseButton
+          onClick={loading ? undefined : onClose}
+          type="button"
+          aria-label={t('actions.close')}
+          disabled={loading}
+        >
           <img src={crossIcon} alt="" />
         </CloseButton>
         <Header>
@@ -51,10 +61,10 @@ const Modal = ({
         </ModalBody>
         <Footer>
           <Button variant="secondary" onClick={onClose} disabled={loading}>
-            {cancelText}
+            {resolvedCancelText}
           </Button>
           <Button variant={confirmButtonVariant} onClick={handleConfirm} loading={loading}>
-            {confirmText}
+            {resolvedConfirmText}
           </Button>
         </Footer>
       </Panel>

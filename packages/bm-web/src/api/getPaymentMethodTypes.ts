@@ -2,6 +2,7 @@
  * Get payment method types API
  */
 
+import i18n from '@/utils/i18n';
 import { requestApi, type ApiResponseBody } from './client';
 import { registerResources } from '@/utils/paymentMethodRegistry';
 
@@ -37,7 +38,7 @@ export async function getPaymentMethodTypes(
 ): Promise<{ success: true; data: GetPaymentMethodTypesSuccessData } | { success: false; error: string }> {
   const endpoint = window.endpoints?.getPaymentMethodTypes;
   if (!endpoint) {
-    return { success: false, error: 'Payment method types endpoint is not configured' };
+    return { success: false, error: i18n.t('errors.paymentMethodTypesNotConfigured') };
   }
 
   const result = await requestApi<GetPaymentMethodTypesRequest, GetPaymentMethodTypesResponse>(endpoint, {
@@ -46,11 +47,11 @@ export async function getPaymentMethodTypes(
   });
 
   if (!result.success) {
-    return { success: false, error: result.error ?? 'Failed to fetch payment method types' };
+    return { success: false, error: result.error ?? i18n.t('errors.failedToFetchPaymentMethodTypes') };
   }
 
   if (!result.data) {
-    return { success: false, error: 'Failed to fetch payment method types' };
+    return { success: false, error: i18n.t('errors.failedToFetchPaymentMethodTypes') };
   }
 
   const resources = result.data.resources ?? {};

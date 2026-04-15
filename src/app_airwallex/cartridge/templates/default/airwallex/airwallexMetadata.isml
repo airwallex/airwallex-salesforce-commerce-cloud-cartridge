@@ -1,0 +1,27 @@
+<isset name="configHelper" value="${require('*/cartridge/scripts/helpers/configHelper')}" scope="page"/>
+
+<script src="${configHelper.getSDKUrl()}"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@1.13.6/dist/axios.min.js" integrity="sha384-EtqfExzDvAOmLLdnOsa5Dy174/rTmPzv9OnQXw8NQOXnTypob284TIsp6Gt3yEyL" crossorigin="anonymous"></script>
+<script>
+    window.airwallexConfig = window.airwallexConfig || {
+        autoCapture: ${configHelper.getAutoCapture()},
+        paymentMethods: "${configHelper.getPaymentMethods() || ''}".split(',').map(function(s) { return s.trim(); }).filter(Boolean),
+        environment: "${configHelper.getEnvironment()}",
+        locale: "${request.locale}",
+        cardSchemes: "${configHelper.getCardScheme() || ''}".split(',').map(function(s) { return s.trim(); }).filter(Boolean),
+        applePayEnabled: ${configHelper.getApplePayEnabled()},
+        googlePayEnabled: ${configHelper.getGooglePayEnabled()},
+    };
+    window.i18nResources = window.i18nResources || {
+        paymentFailed: "${Resource.msg('error.paymentFailed', 'airwallex', null)}",
+        fieldsIncomplete: "${Resource.msg('error.fieldsIncomplete', 'airwallex', null)}",
+        unexpectedError: "${Resource.msg('error.unexpected', 'airwallex', null)}",
+        merchantValidationFailed: "${Resource.msg('error.merchantValidationFailed', 'airwallex', null)}",
+        noShippingOptions: "${Resource.msg('error.noShippingOptions', 'airwallex', null)}",
+        cannotShipWithMethod: "${Resource.msg('error.cannotShipWithMethod', 'airwallex', null)}",
+        cannotShipToAddress: "${Resource.msg('error.cannotShipToAddress', 'airwallex', null)}",
+        exchangeRate: "${Resource.msg('label.exchangeRate', 'airwallex', null)}",
+        pay: "${Resource.msg('label.pay', 'airwallex', null)}",
+    };
+    window.airwallexBaseUrl = window.airwallexBaseUrl || "${URLUtils.https('Airwallex')}".replace(/Airwallex+$/, '');
+</script>

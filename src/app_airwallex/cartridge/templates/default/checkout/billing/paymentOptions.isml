@@ -1,18 +1,7 @@
 <iscontent type="text/html" charset="UTF-8" />
-<isset name="configHelper" value="${require('*/cartridge/scripts/helpers/configHelper')}" scope="page"/>
-<script src="${configHelper.getSDKUrl()}"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios@1.13.6/dist/axios.min.js" integrity="sha384-EtqfExzDvAOmLLdnOsa5Dy174/rTmPzv9OnQXw8NQOXnTypob284TIsp6Gt3yEyL" crossorigin="anonymous"></script>
+<isinclude template="airwallex/airwallexMetadata" />
 <link rel="stylesheet" href="${URLUtils.staticURL('/css/payment-methods.css')}">
-<script>
-    window.airwallexConfig = {
-        autoCapture: ${configHelper.getAutoCapture()},
-        paymentMethods: "${configHelper.getPaymentMethods() || ''}".split(',').map(s => s.trim()).filter(Boolean),
-        environment: "${configHelper.getEnvironment()}",
-        cardSchemes: "${configHelper.getCardScheme() || ''}".split(',').map(s => s.trim()).filter(Boolean),
-        applePayEnabled: ${configHelper.getApplePayEnabled()},
-        googlePayEnabled: ${configHelper.getGooglePayEnabled()},
-    }
-</script>
+
 <div class="payment-information"
      data-payment-method-id="AirwallexCreditCard"
      data-is-new-payment="${pdict.customer.registeredUser && pdict.customer.customerPaymentInstruments.length ? false : true}"
@@ -30,9 +19,8 @@
 </fieldset>
 
 <script>
-    const baseUrl = "${URLUtils.https('Airwallex')}".replace(/Airwallex+$/, '');
-    window.httpClient = axios.create({
-        baseURL: baseUrl,
+    window.httpClient = window.httpClient || axios.create({
+        baseURL: window.airwallexBaseUrl,
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },

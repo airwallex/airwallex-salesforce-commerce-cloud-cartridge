@@ -9,7 +9,7 @@ const path = require('path');
 const webpack = require('sgmf-scripts').webpack;
 require('dotenv').config();
 
-const cartridgeName = process.env.APP_AIRWALLEX_CARTRIDGE_NAME;
+const cartridgeName = process.env.APP_AIRWALLEX_CARTRIDGE_NAME || 'app_airwallex';
 
 const bootstrapPackages = {
   Alert: 'exports-loader?Alert!bootstrap/js/src/alert',

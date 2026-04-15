@@ -59,13 +59,13 @@ export const displayQuote = (quote: Quote): void => {
   const payContent = `${target_amount} ${target_currency}`;
 
   const exchangeRateSection = createQuoteSection({
-    label: 'Exchange Rate',
+    label: window.i18nResources.exchangeRate,
     content: exchangeRateContent,
     rowClassName: EXCHANGE_RATE_ROW_CLASS,
     contentSpanClassName: EXCHANGE_RATE_CLASS,
   });
   const paySection = createQuoteSection({
-    label: 'Pay',
+    label: window.i18nResources.pay,
     content: payContent,
     rowClassName: PAY_AMOUNT_ROW_CLASS,
     contentSpanClassName: PAY_AMOUNT_CLASS,

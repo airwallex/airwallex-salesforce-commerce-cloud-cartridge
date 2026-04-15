@@ -3,7 +3,7 @@
 <div class="awx-card-container">
     <div class="awx-full-width">
         <div class="awx-card-information">
-            <p class="awx-body-text">Card information</p>
+            <p class="awx-body-text">${Resource.msg('label.cardInformation', 'airwallex', null)}</p>
         </div>
         <div id="airwallex-card-number" class="awx-input awx-card-number" tabindex="0"></div>
     </div>

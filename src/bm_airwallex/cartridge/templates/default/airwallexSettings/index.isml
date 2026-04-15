@@ -1,5 +1,5 @@
-<iscontent type="text/html" charset="UTF-8" compact="true">
-<isinclude url="${URLUtils.url('SiteNavigationBar-IncludeFrameTop','SelectedMenuItem',pdict.SelectedMenuItem,'CurrentMenuItemId',pdict.CurrentMenuItemId)}">
+<iscontent type="text/html" charset="UTF-8" compact="true" />
+<isinclude url="${URLUtils.url('SiteNavigationBar-IncludeFrameTop','SelectedMenuItem',pdict.SelectedMenuItem,'CurrentMenuItemId',pdict.CurrentMenuItemId)}" />
 <isset name="ConfigHelper" value="${require('*/cartridge/scripts/helpers/configHelper')}" scope="page"/>
 <script>
     window.endpoints = {
@@ -7,6 +7,7 @@
         webhook: '${ConfigHelper.getWebhookUrl()}',
         getPaymentMethodTypes: '${URLUtils.https('AirwallexSettings-GetPaymentMethodTypes')}',
     }
+    window.userLocale = '${request.locale}';
     window.airwallexBusinessManager = {
         environment: '${ConfigHelper.getEnvironment()}',
         clientIdDemo: '${ConfigHelper.getClientId('demo') || ''}',
@@ -35,4 +36,4 @@
 <body>
     <div id="root"></div>
 </body>
-</html>
+<isinclude url="${URLUtils.url('SiteNavigationBar-IncludeFrameBottom')}" />

@@ -1,5 +1,6 @@
-import { useState, Fragment, useMemo, useCallback, useEffect } from 'react';
+import { useState, Fragment, useMemo, useCallback, useEffect, useRef } from 'react';
 import { css } from '@emotion/react';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardHeader, CardBody } from '@/components/Card';
 import Button from '@/components/Button';
@@ -84,12 +85,15 @@ const EnvironmentSettings = ({
   editingEnvironment,
   onEditChange,
 }: EnvironmentSettingsProps) => {
+  const { t } = useTranslation();
   const [internalEditing, setInternalEditing] = useState(false);
   const isControlled = editingEnvironment !== undefined && onEditChange !== undefined;
   const isEditing = isControlled ? editingEnvironment === environment : internalEditing;
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [showVerifyAlert, setShowVerifyAlert] = useState(false);
+  const verifyAlertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [cardSchemes, setCardSchemes] = useState<string[]>([]);
   const [expressCheckoutPaymentMethods, setExpressCheckoutPaymentMethods] = useState<string[]>([]);
   const [additionalPaymentMethods, setAdditionalPaymentMethods] = useState<string[]>([]);
@@ -114,13 +118,26 @@ const EnvironmentSettings = ({
         apiKey,
       }).then((result) => {
         if (result.success) {
-          setCardSchemes(result.data.cardSchemes);
-          setExpressCheckoutPaymentMethods(result.data.expressCheckoutPaymentMethods);
-          setAdditionalPaymentMethods(result.data.additionalPaymentMethods);
+          setCardSchemes([...result.data.cardSchemes].sort());
+          setExpressCheckoutPaymentMethods([...result.data.expressCheckoutPaymentMethods].sort());
+          setAdditionalPaymentMethods([...result.data.additionalPaymentMethods].sort());
         }
       });
     }
   }, [environment, values.clientId, values.apiKey]);
+
+  useEffect(() => {
+    if (showVerifyAlert) {
+      verifyAlertTimerRef.current = setTimeout(() => {
+        setShowVerifyAlert(false);
+      }, 5000);
+      return () => {
+        if (verifyAlertTimerRef.current) {
+          clearTimeout(verifyAlertTimerRef.current);
+        }
+      };
+    }
+  }, [showVerifyAlert]);
 
   const resetFormValues = useCallback(() => {
     setFormValues(values);
@@ -128,22 +145,19 @@ const EnvironmentSettings = ({
     setSelectedExpressCheckout(parseCommaSeparated(values.expressCheckout));
     setSelectedAdditionalPaymentMethods(parseCommaSeparated(values.additionalPaymentMethods));
     setVerifyResult(null);
+    setShowVerifyAlert(false);
   }, [values]);
 
   const handleAutoCaptureChange = useCallback((value: boolean) => {
     setFormValues((prev) => ({ ...prev, autoCapture: value }));
   }, []);
 
-  // Reset form when another EnvironmentSettings takes over editing
-  useEffect(() => {
-    if (isControlled && editingEnvironment !== null && editingEnvironment !== environment) {
-      resetFormValues();
-    }
-  }, [isControlled, editingEnvironment, environment, resetFormValues]);
+  const editDisabledByOther = isControlled && editingEnvironment !== null && editingEnvironment !== environment;
 
   const handleFieldChange = (field: keyof SettingsFormValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     setVerifyResult(null);
+    setShowVerifyAlert(false);
   };
 
   const handleEdit = () => {
@@ -203,6 +217,7 @@ const EnvironmentSettings = ({
   const handleVerify = useCallback(async () => {
     setIsVerifying(true);
     setVerifyResult(null);
+    setShowVerifyAlert(false);
     try {
       const result = await getPaymentMethodTypes({
         environment,
@@ -211,17 +226,19 @@ const EnvironmentSettings = ({
       });
 
       if (result.success) {
-        setVerifyResult({ type: 'success', message: 'Connection successful' });
-        setCardSchemes(result.data.cardSchemes);
-        setExpressCheckoutPaymentMethods(result.data.expressCheckoutPaymentMethods);
-        setAdditionalPaymentMethods(result.data.additionalPaymentMethods);
+        setVerifyResult({ type: 'success', message: t('credentials.connectionSuccess') });
+        setShowVerifyAlert(true);
+        setCardSchemes([...result.data.cardSchemes].sort());
+        setExpressCheckoutPaymentMethods([...result.data.expressCheckoutPaymentMethods].sort());
+        setAdditionalPaymentMethods([...result.data.additionalPaymentMethods].sort());
       } else {
-        setVerifyResult({ type: 'error', message: result.error ?? 'Connection failed' });
+        setVerifyResult({ type: 'error', message: result.error ?? t('credentials.connectionFailed') });
+        setShowVerifyAlert(true);
       }
     } finally {
       setIsVerifying(false);
     }
-  }, [environment, formValues.clientId, formValues.apiKey]);
+  }, [environment, formValues.clientId, formValues.apiKey, t]);
 
   const body = useMemo(() => {
     const hasCardSchemes = cardSchemes.length > 0;
@@ -235,27 +252,27 @@ const EnvironmentSettings = ({
       return (
         <Fragment>
           <SectionIntro>
-            <Headline variant="300">Environment credentials</Headline>
-            <Body variant="subtle">Connect your Airwallex account to process payments and sync data</Body>
+            <Headline variant="300">{t('credentials.title')}</Headline>
+            <Body variant="subtle">{t('credentials.description')}</Body>
           </SectionIntro>
           <IdKeyContainer>
             <TextInput
-              label="Client ID"
+              label={t('credentials.clientId')}
               value={formValues.clientId}
               onChange={(e) => handleFieldChange('clientId', e.target.value)}
             />
             <TextInput
-              label="API Key"
+              label={t('credentials.apiKey')}
               type="password"
               value={formValues.apiKey}
               onChange={(e) => handleFieldChange('apiKey', e.target.value)}
             />
             <Button variant="secondary" onClick={handleVerify} disabled={isVerifyDisabled} loading={isVerifying}>
-              Verify
+              {t('credentials.verify')}
             </Button>
           </IdKeyContainer>
-          <TextInputHint>Generate credentials in Airwallex Developer settings.</TextInputHint>
-          {verifyResult && (
+          <TextInputHint>{t('credentials.hint')}</TextInputHint>
+          {verifyResult && showVerifyAlert && (
             <VerifyAlert>
               <Alert subtle variant={verifyResult.type}>
                 {verifyResult.message}
@@ -263,16 +280,11 @@ const EnvironmentSettings = ({
             </VerifyAlert>
           )}
           <WebhookUrlContainer>
-            <TextInput
-              label="Webhook URL"
-              value={window.endpoints.webhook}
-              hint="Copy this URL and paste it into Airwallex settings to generate your webhook secret key"
-              forCopy
-            />
+            <TextInput label={t('webhook.url')} value={window.endpoints.webhook} hint={t('webhook.urlHint')} forCopy />
           </WebhookUrlContainer>
           <WebhookSecretInput>
             <TextInput
-              label="Webhook Secret"
+              label={t('webhook.secret')}
               type="password"
               value={formValues.webhookSecret}
               onChange={(e) => handleFieldChange('webhookSecret', e.target.value)}
@@ -281,12 +293,12 @@ const EnvironmentSettings = ({
           {hasPaymentMethodsAvailable && (
             <>
               <SectionIntroWithMargin>
-                <Headline variant="300">Payment methods</Headline>
-                <Body variant="subtle">Select the payment options to display at checkout</Body>
+                <Headline variant="300">{t('paymentMethods.title')}</Headline>
+                <Body variant="subtle">{t('paymentMethods.description')}</Body>
               </SectionIntroWithMargin>
               {hasCardSchemes && (
                 <PaymentMethodsSection>
-                  <Body variant="primary">Card schemes</Body>
+                  <Body variant="primary">{t('paymentMethods.cardSchemes')}</Body>
                   <PaymentMethodsContainer>
                     <PaymentMethodsCheck
                       options={cardSchemes.map((scheme) => ({ label: getPaymentMethodName(scheme), value: scheme }))}
@@ -298,7 +310,7 @@ const EnvironmentSettings = ({
               )}
               {hasExpressCheckoutPaymentMethods && (
                 <PaymentMethodsSection>
-                  <Body variant="primary">Express checkout</Body>
+                  <Body variant="primary">{t('paymentMethods.expressCheckout')}</Body>
                   <PaymentMethodsContainer>
                     <PaymentMethodsCheck
                       options={expressCheckoutPaymentMethods.map((method) => ({
@@ -313,7 +325,7 @@ const EnvironmentSettings = ({
               )}
               {hasAdditionalPaymentMethods && (
                 <PaymentMethodsSection>
-                  <Body variant="primary">Additional payment methods</Body>
+                  <Body variant="primary">{t('paymentMethods.additional')}</Body>
                   <PaymentMethodsContainer>
                     <PaymentMethodsSelect
                       options={additionalPaymentMethods.map((method) => ({
@@ -329,11 +341,8 @@ const EnvironmentSettings = ({
             </>
           )}
           <SectionIntroWithMargin>
-            <Headline variant="300">Payment capture method</Headline>
-            <Body variant="subtle">
-              If &quot;Authorize only&quot; is selected, you will need to manually capture the funds in Airwallex.
-              Payments made using methods that don't support hold will still be automatically captured.
-            </Body>
+            <Headline variant="300">{t('captureMethod.title')}</Headline>
+            <Body variant="subtle">{t('captureMethod.description')}</Body>
           </SectionIntroWithMargin>
           <PaymentMethodsSection>
             <AutoCaptureRadio value={formValues.autoCapture} onChange={handleAutoCaptureChange} />
@@ -360,38 +369,38 @@ const EnvironmentSettings = ({
       );
     }
 
-    const cardSchemeNames = parseCommaSeparated(values.cardScheme);
-    const expressCheckoutNames = parseCommaSeparated(values.expressCheckout);
-    const additionalPaymentMethodNames = parseCommaSeparated(values.additionalPaymentMethods);
+    const cardSchemeNames = parseCommaSeparated(values.cardScheme).sort();
+    const expressCheckoutNames = parseCommaSeparated(values.expressCheckout).sort();
+    const additionalPaymentMethodNames = parseCommaSeparated(values.additionalPaymentMethods).sort();
 
     return (
       <Fragment>
         <SettingLine>
-          <Body>Client ID</Body>
+          <Body>{t('credentials.clientId')}</Body>
           <Body bold variant="primary">
             {values.clientId}
           </Body>
         </SettingLine>
         <SettingLine>
-          <Body>API Key</Body>
+          <Body>{t('credentials.apiKey')}</Body>
           <Body bold variant="primary">
             {maskString(values.apiKey)}
           </Body>
         </SettingLine>
         <SettingLine>
-          <Body>Webhook URL</Body>
+          <Body>{t('webhook.url')}</Body>
           <Body bold variant="primary">
             {window.endpoints.webhook}
           </Body>
         </SettingLine>
         <SettingLine>
-          <Body>Webhook Secret</Body>
+          <Body>{t('webhook.secret')}</Body>
           <Body bold variant="primary">
             {maskString(values.webhookSecret)}
           </Body>
         </SettingLine>
         <SettingLine>
-          <Body>Card schemes</Body>
+          <Body>{t('paymentMethods.cardSchemes')}</Body>
           {cardSchemeNames.length > 0 ? (
             <PaymentIconList names={cardSchemeNames} />
           ) : (
@@ -401,7 +410,7 @@ const EnvironmentSettings = ({
           )}
         </SettingLine>
         <SettingLine>
-          <Body>Express checkout</Body>
+          <Body>{t('paymentMethods.expressCheckout')}</Body>
           {expressCheckoutNames.length > 0 ? (
             <PaymentIconList names={expressCheckoutNames} />
           ) : (
@@ -411,7 +420,7 @@ const EnvironmentSettings = ({
           )}
         </SettingLine>
         <SettingLine>
-          <Body>Additional payment methods</Body>
+          <Body>{t('paymentMethods.additional')}</Body>
           {additionalPaymentMethodNames.length > 0 ? (
             <PaymentIconList names={additionalPaymentMethodNames} max={8} />
           ) : (
@@ -421,7 +430,7 @@ const EnvironmentSettings = ({
           )}
         </SettingLine>
         <SettingLine>
-          <Body>Payment capture method</Body>
+          <Body>{t('captureMethod.title')}</Body>
           <Body bold variant="primary">
             {getAutoCaptureLabel(values.autoCapture)}
           </Body>
@@ -429,11 +438,13 @@ const EnvironmentSettings = ({
       </Fragment>
     );
   }, [
+    t,
     isEditing,
     formValues,
     values,
     emptyState,
     verifyResult,
+    showVerifyAlert,
     cardSchemes,
     expressCheckoutPaymentMethods,
     additionalPaymentMethods,
@@ -482,7 +493,7 @@ const EnvironmentSettings = ({
                 `}
               >
                 {title}
-                <Tag variant="green">Active</Tag>
+                <Tag variant="green">{t('tag.active')}</Tag>
               </div>
             ) : (
               title
@@ -495,11 +506,13 @@ const EnvironmentSettings = ({
           onSave={handleSave}
           loading={isLoading}
           saveDisabled={saveDisabled}
+          editDisabled={editDisabledByOther}
+          editDisabledTooltip={t('editDisabled.tooltip')}
           showActivate={!credentialsEmpty && activatedEnvironment != null && environment !== activatedEnvironment}
-          activateButtonText={`Activate ${getEnvironmentName(environment)}`}
+          activateButtonText={t('actions.activate', { environment: getEnvironmentName(environment) })}
           activateButtonVariant={activatedEnvironment != null ? 'secondary' : 'primary'}
           onActivate={handleActivate}
-          editButtonText={credentialsEmpty ? 'Configure' : 'Edit'}
+          editButtonText={credentialsEmpty ? t('actions.configure') : t('actions.edit')}
         />
       </CardHeader>
       <CardBody>{body}</CardBody>

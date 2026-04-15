@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import PaymentIcon from '@/components/PaymentIcon';
+import Tooltip from '@/components/Tooltip';
 import { getPaymentMethodName } from '@/utils/paymentMethodNames';
 import { PaymentIconListContainer, MoreText } from './styles';
 
@@ -8,6 +10,8 @@ export interface PaymentIconListProps {
 }
 
 const PaymentIconList = ({ names, max }: PaymentIconListProps) => {
+  const { t } = useTranslation();
+
   if (names.length === 0) {
     return null;
   }
@@ -22,7 +26,9 @@ const PaymentIconList = ({ names, max }: PaymentIconListProps) => {
         <PaymentIcon key={name} name={name} />
       ))}
       {hiddenCount > 0 && (
-        <MoreText title={hiddenNames.map(getPaymentMethodName).join(', ')}>+{hiddenCount} more</MoreText>
+        <Tooltip content={hiddenNames.map(getPaymentMethodName).join(', ')}>
+          <MoreText>{t('paymentIconList.more', { count: hiddenCount })}</MoreText>
+        </Tooltip>
       )}
     </PaymentIconListContainer>
   );

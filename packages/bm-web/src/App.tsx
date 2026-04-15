@@ -4,14 +4,18 @@ import ActiveEnvironment from '@/biz-components/ActiveEnvironment';
 import AllEnvironmentsSettings from '@/biz-components/AllEnvironmentsSettings';
 import QuickLinks from '@/biz-components/QuickLinks';
 import AirwallexLogo from '@/components/AirwallexLogo';
-import { AppWrapper, ContentRow, MainContent } from './AppStyles';
+import LanguageSelect from '@/components/LanguageSelect';
+import { AppWrapper, HeaderRow, ContentRow, MainContent } from './AppStyles';
 
 function App() {
   return (
     <SettingsProvider>
       <AlertProvider>
         <AppWrapper>
-          <AirwallexLogo margin="0 0 56px 0" />
+          <HeaderRow>
+            <AirwallexLogo margin="0" />
+            <LanguageSelect />
+          </HeaderRow>
           <ContentRow>
             <MainContent>
               <ActiveEnvironment />

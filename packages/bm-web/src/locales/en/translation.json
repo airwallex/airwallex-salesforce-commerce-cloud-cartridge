@@ -1,0 +1,88 @@
+{
+  "environment.sandbox": "Sandbox",
+  "environment.production": "Production",
+  "environment.unknown": "Unknown",
+
+  "activeEnvironment.title": "Active Environment:",
+  "activeEnvironment.notConnected": "Not connected",
+  "activeEnvironment.notConnectedAlt": "not connected",
+  "activeEnvironment.configureHint": "Configure Production or Sandbox to activate Airwallex payments.",
+
+  "environmentSettings.title": "{{environment}} settings",
+  "environmentSettings.demo.description": "Test payment flows without real money",
+  "environmentSettings.production.description": "Accept real payments and settle funds",
+  "environmentSettings.emptyState.demo.title": "Configure {{environment}}",
+  "environmentSettings.emptyState.demo.description": "Add your credentials to simulate the checkout experience.",
+  "environmentSettings.emptyState.production.title": "Configure {{environment}}",
+  "environmentSettings.emptyState.production.description": "Add your credentials to start processing live transactions.",
+
+  "credentials.title": "Environment credentials",
+  "credentials.description": "Connect your Airwallex account to process payments and sync data",
+  "credentials.clientId": "Client ID",
+  "credentials.apiKey": "API Key",
+  "credentials.verify": "Verify",
+  "credentials.hint": "Generate credentials in Airwallex Developer settings.",
+  "credentials.connectionSuccess": "Connection successful",
+  "credentials.connectionFailed": "Connection failed",
+
+  "webhook.url": "Webhook URL",
+  "webhook.urlHint": "Copy this URL and paste it into Airwallex settings to generate your webhook secret key",
+  "webhook.secret": "Webhook Secret",
+
+  "paymentMethods.title": "Payment methods",
+  "paymentMethods.description": "Select the payment options to display at checkout",
+  "paymentMethods.cardSchemes": "Card schemes",
+  "paymentMethods.expressCheckout": "Express checkout",
+  "paymentMethods.additional": "Additional payment methods",
+
+  "captureMethod.title": "Payment capture method",
+  "captureMethod.description": "If \"Authorise only\" is selected, you will need to manually capture the funds in Airwallex. Payments made using methods that don't support hold will still be automatically captured.",
+  "captureMethod.authorizeCapture": "Authorise & capture",
+  "captureMethod.authorizeOnly": "Authorise only",
+
+  "actions.edit": "Edit",
+  "actions.configure": "Configure",
+  "actions.cancel": "Cancel",
+  "actions.save": "Save",
+  "actions.confirm": "Confirm",
+  "actions.close": "Close",
+  "actions.activate": "Activate {{environment}}",
+
+  "tag.active": "Active",
+
+  "editDisabled.tooltip": "Save or cancel your open edits to configure this environment.",
+
+  "modal.enableLivePayments.title": "Enable live payments?",
+  "modal.enableLivePayments.message": "Your store will stop routing to Sandbox and immediately begin processing real transactions",
+  "modal.enableLivePayments.confirm": "Activate Production",
+  "modal.disableLivePayments.title": "Disable live payments?",
+  "modal.disableLivePayments.message": "Switching to Sandbox will stop your store from processing real transactions. All new checkouts will be routed to your test environment.",
+  "modal.disableLivePayments.confirm": "Switch to Sandbox",
+
+  "alerts.environmentActivated": "{{environment}} environment activated",
+  "alerts.settingsSaved": "{{environment}} settings saved successfully",
+  "alerts.failedToUpdateEnvironment": "Failed to update environment",
+  "alerts.failedToSaveSettings": "Failed to save settings",
+  "alerts.copied": "Copied!",
+
+  "quickLinks.title": "Quick links",
+  "quickLinks.paymentMethods": "Payment methods overview",
+  "quickLinks.sandboxOverview": "Sandbox environment overview",
+
+  "select.selectAll": "Select all",
+  "select.deselectAll": "Deselect all",
+
+  "paymentIconList.more": "+{{count}} more",
+
+  "accessibility.airwallexLogo": "Airwallex Logo",
+  "accessibility.passwordVisibility": "Password visibility",
+  "accessibility.copy": "Copy",
+  "accessibility.checkbox": "Checkbox",
+  "accessibility.toggleSwitch": "Toggle switch",
+
+  "errors.requestFailed": "Request failed",
+  "errors.unknownError": "Unknown error occurred",
+  "errors.paymentMethodTypesNotConfigured": "Payment method types endpoint is not configured",
+  "errors.failedToFetchPaymentMethodTypes": "Failed to fetch payment method types",
+  "errors.saveEndpointNotConfigured": "Save endpoint is not configured"
+}

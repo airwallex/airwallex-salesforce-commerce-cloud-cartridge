@@ -128,7 +128,7 @@ export class GooglePay extends ExpressCheckout<'googlePayButton'> {
     } else {
       paymentDataUpdate.error = {
         reason: 'SHIPPING_ADDRESS_UNSERVICEABLE',
-        message: 'No shipping options available',
+        message: window.i18nResources.noShippingOptions,
         intent: 'SHIPPING_ADDRESS',
       };
     }
@@ -159,7 +159,7 @@ export class GooglePay extends ExpressCheckout<'googlePayButton'> {
     } else {
       paymentDataUpdate.error = {
         reason: 'SHIPPING_ADDRESS_UNSERVICEABLE',
-        message: 'Cannot ship to the selected address',
+        message: window.i18nResources.cannotShipToAddress,
         intent: 'SHIPPING_OPTION',
       };
     }

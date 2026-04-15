@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import logo from '@/assets/logo.svg?inline';
 import { css } from '@emotion/react';
 
@@ -6,6 +7,8 @@ export interface AirwallexLogoProps {
 }
 
 const AirwallexLogo = ({ margin }: AirwallexLogoProps) => {
+  const { t } = useTranslation();
+
   return (
     <img
       css={css`
@@ -15,7 +18,7 @@ const AirwallexLogo = ({ margin }: AirwallexLogoProps) => {
         display: block;
       `}
       src={logo}
-      alt="Airwallex Logo"
+      alt={t('accessibility.airwallexLogo')}
     />
   );
 };

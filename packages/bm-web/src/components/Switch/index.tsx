@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SwitchWrapper, SwitchContainer, SwitchBackground, SwitchHandle, SwitchInput, SwitchLabel } from './styles';
 
 export interface SwitchProps {
@@ -8,6 +9,7 @@ export interface SwitchProps {
 }
 
 const Switch = ({ checked, onChange, children }: SwitchProps) => {
+  const { t } = useTranslation();
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange?.(event.target.checked);
   };
@@ -29,7 +31,7 @@ const Switch = ({ checked, onChange, children }: SwitchProps) => {
         <SwitchInput
           type="checkbox"
           role="switch"
-          aria-label="Toggle switch"
+          aria-label={t('accessibility.toggleSwitch')}
           checked={checked}
           onChange={handleChange}
         />

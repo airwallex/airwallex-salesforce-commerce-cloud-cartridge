@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { css } from '@emotion/react';
+import { css, keyframes } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { AlertContext, type AlertOptions } from './alert';
 import Alert from '@/components/Alert';
@@ -13,6 +13,17 @@ type AlertState = {
   duration: number;
 };
 
+const slideUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+`;
+
 export const AlertProvider = ({ children }: { children: ReactNode }) => {
   const [alerts, setAlerts] = useState<AlertState[]>([]);
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -20,7 +31,7 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
   const alert = useCallback((message: string, options?: AlertOptions) => {
     const id = `alert-${Date.now()}-${Math.random()}`;
     const variant = options?.variant || 'info';
-    const duration = options?.duration ?? 3000; // Default 3 seconds
+    const duration = options?.duration ?? 5000; // Default 5 seconds
 
     setAlerts((prev) => [...prev, { id, message, variant, duration }]);
   }, []);
@@ -76,15 +87,18 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
       {typeof document !== 'undefined' &&
         createPortal(
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, pointerEvents: 'none' as const }}>
-            {alerts.map((alertState, index) => (
+            {alerts.map((alertState) => (
               <div
                 key={alertState.id}
                 css={css`
                   position: fixed;
-                  top: ${120 + index * 80}px;
+                  bottom: 64px;
                   left: 50%;
                   transform: translateX(-50%);
                   pointer-events: auto;
+                  border-radius: 6px;
+                  box-shadow: 0px 4px 32px 0px #00000029;
+                  animation: ${slideUp} 0.3s ease-out forwards;
                 `}
               >
                 <Alert variant={alertState.variant}>{alertState.message}</Alert>

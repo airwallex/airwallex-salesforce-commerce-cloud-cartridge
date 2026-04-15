@@ -1,4 +1,5 @@
 import { Fragment, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Headline, Body } from '@/components/Typography';
 import EnvironmentSettings from '@/biz-components/EnvironmentSettings';
 import Modal from '@/components/Modal';
@@ -33,6 +34,7 @@ const ENV_TO_SETTINGS_KEYS: Record<Environment, (keyof Settings)[]> = {
 };
 
 const AllEnvironmentsSettings = () => {
+  const { t } = useTranslation();
   const { settings, submitSettings, setSettings, setSetting } = useSettings();
   const { alert } = useAlert();
   const [editingEnvironment, setEditingEnvironment] = useState<Environment | null>(null);
@@ -45,12 +47,15 @@ const AllEnvironmentsSettings = () => {
     const result = await submitSettings(['environment'], { environment: env });
     if (result.success) {
       setSetting('environment', env);
-      alert(`${getEnvironmentName(env)} environment activated`, { variant: 'success' });
+      alert(t('alerts.environmentActivated', { environment: getEnvironmentName(env) }), { variant: 'success' });
     } else {
-      alert(result.error ?? 'Failed to update environment', { variant: 'error' });
+      alert(result.error ?? t('alerts.failedToUpdateEnvironment'), { variant: 'error' });
       throw new Error(result.error);
     }
   };
+
+  const demoName = getEnvironmentName('demo');
+  const productionName = getEnvironmentName('production');
 
   const environments: {
     env: Environment;
@@ -71,12 +76,12 @@ const AllEnvironmentsSettings = () => {
   }[] = [
     {
       env: 'demo',
-      title: `${getEnvironmentName('demo')} settings`,
-      description: 'Test payment flows without real money',
+      title: t('environmentSettings.title', { environment: demoName }),
+      description: t('environmentSettings.demo.description'),
       emptyState: {
-        image: <img src={scalableImage} alt={getEnvironmentName('demo')} />,
-        title: `Configure ${getEnvironmentName('demo')}`,
-        description: 'Add your credentials to simulate the checkout experience.',
+        image: <img src={scalableImage} alt={demoName} />,
+        title: t('environmentSettings.emptyState.demo.title', { environment: demoName }),
+        description: t('environmentSettings.emptyState.demo.description'),
       },
       clientId: settings.clientIdDemo,
       apiKey: settings.apiKeyDemo,
@@ -88,12 +93,12 @@ const AllEnvironmentsSettings = () => {
     },
     {
       env: 'production',
-      title: `${getEnvironmentName('production')} settings`,
-      description: 'Accept real payments and settle funds',
+      title: t('environmentSettings.title', { environment: productionName }),
+      description: t('environmentSettings.production.description'),
       emptyState: {
-        image: <img src={addBusinessImage} alt={getEnvironmentName('production')} />,
-        title: `Configure ${getEnvironmentName('production')}`,
-        description: 'Add your credentials to start processing live transactions.',
+        image: <img src={addBusinessImage} alt={productionName} />,
+        title: t('environmentSettings.emptyState.production.title', { environment: productionName }),
+        description: t('environmentSettings.emptyState.production.description'),
       },
       clientId: settings.clientIdProduction,
       apiKey: settings.apiKeyProduction,
@@ -119,9 +124,9 @@ const AllEnvironmentsSettings = () => {
             setIsActivatingProduction(false);
           }
         }}
-        title="Enable live payments?"
-        message="Your store will stop routing to Sandbox and immediately begin processing real transactions"
-        confirmText="Activate Production"
+        title={t('modal.enableLivePayments.title')}
+        message={t('modal.enableLivePayments.message')}
+        confirmText={t('modal.enableLivePayments.confirm')}
         loading={isActivatingProduction}
       />
       <Modal
@@ -136,9 +141,9 @@ const AllEnvironmentsSettings = () => {
             setIsActivatingSandbox(false);
           }
         }}
-        title="Disable live payments?"
-        message="Switching to Sandbox will stop your store from processing real transactions. All new checkouts will be routed to your test environment."
-        confirmText="Switch to Sandbox"
+        title={t('modal.disableLivePayments.title')}
+        message={t('modal.disableLivePayments.message')}
+        confirmText={t('modal.disableLivePayments.confirm')}
         confirmButtonVariant="danger"
         loading={isActivatingSandbox}
       />
@@ -199,9 +204,9 @@ const AllEnvironmentsSettings = () => {
               const result = await submitSettings(keys, overrides);
               if (result.success) {
                 setSettings(overrides);
-                alert(`${getEnvironmentName(env)} settings saved successfully`, { variant: 'success' });
+                alert(t('alerts.settingsSaved', { environment: getEnvironmentName(env) }), { variant: 'success' });
               } else {
-                alert(result.error ?? 'Failed to save settings', { variant: 'error' });
+                alert(result.error ?? t('alerts.failedToSaveSettings'), { variant: 'error' });
                 throw new Error(result.error);
               }
             }}

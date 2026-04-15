@@ -1,0 +1,15 @@
+<isinclude template="airwallex/expressCheckout" />
+<div id="awx-express-checkout-cart" class="awx-express-checkout">
+    <div id="awx-apple-pay-cart" class="awx-express-checkout-item"></div>
+    <div id="awx-google-pay-cart" class="awx-express-checkout-item"></div>
+</div>
+
+<div class="mb-sm-3">
+    <a href="${URLUtils.https('Checkout-Begin')}"
+        class="btn btn-primary btn-block checkout-btn ${pdict.valid.error ? 'disabled' : ''}" role="button">
+        ${Resource.msg('button.checkout', 'cart', null)}
+    </a>
+</div>
+
+<isinclude template="airwallex/airwallexMetadata" />
+<input type="hidden" id="airwallex-csrf-token" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}">
