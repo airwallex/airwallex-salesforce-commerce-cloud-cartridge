@@ -82,10 +82,15 @@ export interface Amount {
 }
 
 export interface ExpressCheckoutMethodsResponse {
-  amount: Amount;
+  amount: Amount | null;
   countryCode: string;
   storeName: string;
   shippingAddressCountryOptions: FormFieldOptionPlain[];
+}
+
+export interface CreateTemporaryBasketResponse {
+  temporaryBasketCreated: boolean;
+  amount: Amount;
 }
 
 export interface ShippingOptionsResponse {

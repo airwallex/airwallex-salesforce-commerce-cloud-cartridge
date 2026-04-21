@@ -1,18 +1,10 @@
 import { ExpressCheckout } from './base';
 
-import type { Payment } from '@airwallex/components-sdk';
-import type {
-  ShippingOptionsResponse,
-  SelectShippingMethodResponse,
-  ExpressCheckoutAuthorizationResponse,
-} from '../../../types';
-
+import type { Payment, ElementOptionsTypes } from '@airwallex/components-sdk';
 import type { AvailableShippingOption } from '@/cartridge/scripts/airwallex/payments/shippingOptions';
 import type { ExpressCheckoutAddress } from '@/cartridge/scripts/airwallex/payments/expressCheckoutAuthorization';
 
-type GooglePayIntermediatePaymentData = Payment.GooglePayIntermediatePaymentData['detail']['intermediatePaymentData'];
 type GooglePayPaymentData = Payment.GooglePayButtonEvent['authorized']['detail']['paymentData'];
-type GooglePayShippingAddress = GooglePayIntermediatePaymentData['shippingAddress'];
 type GooglePayAddress = NonNullable<GooglePayPaymentData['shippingAddress']>;
 
 export class GooglePay extends ExpressCheckout<'googlePayButton'> {
@@ -40,43 +32,6 @@ export class GooglePay extends ExpressCheckout<'googlePayButton'> {
     }));
   }
 
-  private static async getShippingOptions(address: GooglePayShippingAddress) {
-    const req = {
-      city: address?.locality,
-      countryCode: address?.countryCode,
-      stateCode: address?.administrativeArea,
-      postalCode: address?.postalCode,
-    };
-    const res = await window.httpClient.post<ShippingOptionsResponse>('Airwallex-ShippingOptions', req);
-    return res.data.shippingMethods;
-  }
-
-  private static async selectShippingOption(shippingOption: AvailableShippingOption) {
-    const req = {
-      shipmentUUID: shippingOption.shipmentUUID,
-      shippingMethodID: shippingOption.ID,
-    };
-    const res = await window.httpClient.post<SelectShippingMethodResponse>('Airwallex-SelectShippingMethod', req);
-    return res.data;
-  }
-
-  private static async authorizePayment(
-    billingAddress: GooglePayAddress,
-    shippingAddress: GooglePayAddress,
-    email: string,
-  ) {
-    const req = {
-      billingAddress: JSON.stringify(GooglePay.formatAddress(billingAddress)),
-      shippingAddress: JSON.stringify(GooglePay.formatAddress(shippingAddress)),
-      email,
-    };
-    const res = await window.httpClient.post<ExpressCheckoutAuthorizationResponse>(
-      'Airwallex-ExpressCheckoutAuthorization',
-      req,
-    );
-    return res.data;
-  }
-
   private static getAllowedCardNetworks(): Payment.GoogleSupportedCardNetWork[] {
     const cardSchemeToGooglePayNetwork: Record<string, Payment.GoogleSupportedCardNetWork> = {
       visa: 'VISA',
@@ -101,24 +56,26 @@ export class GooglePay extends ExpressCheckout<'googlePayButton'> {
       throw new Error('Invalid payment data');
     }
 
-    const { clientSecret, redirectUrl } = await GooglePay.authorizePayment(billingAddress, shippingAddress, email);
-
-    const intent = await this.element!.confirmIntent({
-      client_secret: clientSecret,
-    });
-
-    if (intent && redirectUrl) {
-      window.location.href = redirectUrl;
-    }
+    const { clientSecret, redirectUrl } = await this.authorizePayment(
+      GooglePay.formatAddress(billingAddress),
+      GooglePay.formatAddress(shippingAddress),
+      email,
+    );
+    await this.confirmAndRedirect(clientSecret, redirectUrl);
   };
 
   private onShippingAddressChange = async(event: Payment.GooglePayButtonEvent['shippingAddressChange']) => {
     const { shippingAddress } = event.detail.intermediatePaymentData;
     const paymentDataUpdate: Partial<Payment.GooglePayButtonOptions> = {};
-    const shippingOptions = await GooglePay.getShippingOptions(shippingAddress);
+
+    if (this.isExpressProduct) {
+      await this.ensureTemporaryBasket();
+    }
+
+    const shippingOptions = await this.getShippingOptions(shippingAddress);
     if (shippingOptions.length > 0) {
       const defaultShippingOption = shippingOptions[0];
-      const { grandTotal } = await GooglePay.selectShippingOption(defaultShippingOption);
+      const { grandTotal } = await this.selectShippingOption(defaultShippingOption);
 
       paymentDataUpdate.shippingOptionParameters = {
         defaultSelectedOptionId: defaultShippingOption.ID as string,
@@ -145,12 +102,11 @@ export class GooglePay extends ExpressCheckout<'googlePayButton'> {
 
   private onShippingMethodChange = async(event: Payment.GooglePayButtonEvent['shippingMethodChange']) => {
     const { shippingAddress, shippingOptionData } = event.detail.intermediatePaymentData;
-    const shippingOptions = await GooglePay.getShippingOptions(shippingAddress);
+    const shippingOptions = await this.getShippingOptions(shippingAddress);
     const matchedShippingOption = shippingOptions.find(option => option.ID === shippingOptionData?.id);
     const paymentDataUpdate: Partial<Payment.GooglePayButtonOptions> = {};
     if (matchedShippingOption) {
-      const { grandTotal } = await GooglePay.selectShippingOption(matchedShippingOption);
-
+      const { grandTotal } = await this.selectShippingOption(matchedShippingOption);
       paymentDataUpdate.shippingOptionParameters = {
         defaultSelectedOptionId: matchedShippingOption.ID as string,
         shippingOptions: GooglePay.formatShippingOptions(shippingOptions),
@@ -178,7 +134,7 @@ export class GooglePay extends ExpressCheckout<'googlePayButton'> {
     return 'googlePayButton' as const;
   }
 
-  protected getElementOptions(): Payment.ElementOptionsTypeMap['googlePayButton'] {
+  protected getElementOptions(): ElementOptionsTypes['googlePayButton'] {
     return {
       mode: 'payment',
       emailRequired: true,

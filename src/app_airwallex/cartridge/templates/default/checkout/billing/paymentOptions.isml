@@ -30,7 +30,9 @@
             }
             const params = new URLSearchParams();
             Object.keys(data).forEach(key => {
-                params.append(key, data[key]);
+                const value = data[key];
+                if (value === undefined) return;
+                params.append(key, value);
             });
             params.append('csrf_token', document.getElementById('airwallex-csrf-token').value);
             return params;

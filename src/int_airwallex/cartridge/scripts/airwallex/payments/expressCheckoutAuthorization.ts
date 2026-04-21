@@ -1,10 +1,10 @@
-import BasketMgr = require('dw/order/BasketMgr');
 import PaymentMgr = require('dw/order/PaymentMgr');
 import HookMgr = require('dw/system/HookMgr');
 import Transaction = require('dw/system/Transaction');
 import URLUtils = require('dw/web/URLUtils');
 
 import { PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
+import { getExpressBasket } from '@/cartridge/scripts/helpers/expressBasketHelper';
 
 import type { Request, Response, NextFunction } from 'express';
 import type Basket from 'dw/order/Basket';
@@ -27,6 +27,7 @@ interface FormData {
     shippingAddress: string;
     billingAddress: string;
     email: string;
+    isExpressProduct?: string;
   };
 }
 
@@ -83,14 +84,28 @@ const setBillingAndShippingAddresses = (
 
 const expressCheckoutAuthorization = (req: Request & FormData, res: Response, next: NextFunction) => {
   try {
-    const { shippingAddress: shippingAddressString, billingAddress: billingAddressString, email } = req.form;
+    const {
+      shippingAddress: shippingAddressString,
+      billingAddress: billingAddressString,
+      email,
+      isExpressProduct: isExpressProductStr,
+    } = req.form;
     const shippingAddress = JSON.parse(shippingAddressString) as ExpressCheckoutAddress;
     const billingAddress = JSON.parse(billingAddressString) as ExpressCheckoutAddress;
-    const basket = BasketMgr.getCurrentBasket();
+    const isExpressProduct = isExpressProductStr === 'true';
+    const basket = getExpressBasket(isExpressProduct);
+
+    if (!basket) {
+      res.json({
+        error: true,
+        redirectUrl: URLUtils.https('Cart-Show').toString(),
+      });
+      return next();
+    }
 
     setBillingAndShippingAddresses(basket, billingAddress, shippingAddress, email);
 
-    if (!basket || basket.totalGrossPrice.value <= 0) {
+    if (basket.totalGrossPrice.value <= 0) {
       res.json({
         error: true,
         redirectUrl: URLUtils.https('Cart-Show').toString(),

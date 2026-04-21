@@ -1,7 +1,31 @@
 <isset name="configHelper" value="${require('*/cartridge/scripts/helpers/configHelper')}" scope="page"/>
 
-<script src="${configHelper.getSDKUrl()}"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios@1.13.6/dist/axios.min.js" integrity="sha384-EtqfExzDvAOmLLdnOsa5Dy174/rTmPzv9OnQXw8NQOXnTypob284TIsp6Gt3yEyL" crossorigin="anonymous"></script>
+<iscomment>
+    External scripts are loaded via a guarded helper instead of plain <script src>
+    tags because this template is included from multiple surfaces on the same page
+    (product area, mini-cart, checkout). Plain tags would execute the SDK multiple
+    times, each execution replacing its internal closures and resetting the
+    "initialised" flag, which causes createElement() to fail.
+
+    The helper appends the <script> element only when the corresponding global is
+    still undefined, and the JS-side `waitForDependencies()` polls for readiness,
+    so the async dynamic load is fully compatible.
+</iscomment>
+<script>
+    window.__awxLoadScript = window.__awxLoadScript || function(globalName, src, attrs) {
+        if (typeof window[globalName] !== 'undefined') return;
+        var s = document.createElement('script');
+        s.src = src;
+        if (attrs) { Object.keys(attrs).forEach(function(k) { s.setAttribute(k, attrs[k]); }); }
+        document.head.appendChild(s);
+    };
+
+    window.__awxLoadScript('AirwallexComponentsSDK', '${configHelper.getSDKUrl()}');
+    window.__awxLoadScript('axios', 'https://cdn.jsdelivr.net/npm/axios@1.13.6/dist/axios.min.js', {
+        integrity: 'sha384-EtqfExzDvAOmLLdnOsa5Dy174/rTmPzv9OnQXw8NQOXnTypob284TIsp6Gt3yEyL',
+        crossorigin: 'anonymous'
+    });
+</script>
 <script>
     window.airwallexConfig = window.airwallexConfig || {
         autoCapture: ${configHelper.getAutoCapture()},
