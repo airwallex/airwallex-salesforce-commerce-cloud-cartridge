@@ -2,6 +2,34 @@
  * Module declarations for scripts from storefront-reference-architecture
  */
 
+declare module '*/cartridge/scripts/cart/cartHelpers' {
+  import type Basket from 'dw/order/Basket';
+
+  interface AddProductResult {
+    error: boolean;
+    message?: string;
+  }
+
+  function addProductToCart(
+    currentBasket: Basket,
+    productId: string,
+    quantity: number,
+    childProducts?: unknown[],
+    options?: unknown[],
+  ): AddProductResult;
+
+  function ensureAllShipmentsHaveMethods(basket: Basket): void;
+
+  function getQtyAlreadyInCart(productId: string, lineItems: dw.util.Collection<unknown>): number;
+
+  const cartHelper: {
+    addProductToCart: typeof addProductToCart;
+    ensureAllShipmentsHaveMethods: typeof ensureAllShipmentsHaveMethods;
+    getQtyAlreadyInCart: typeof getQtyAlreadyInCart;
+  };
+  export default cartHelper;
+}
+
 declare module '*/cartridge/scripts/checkout/checkoutHelpers' {
   import type Order from 'dw/order/Order';
   import type Basket from 'dw/order/Basket';

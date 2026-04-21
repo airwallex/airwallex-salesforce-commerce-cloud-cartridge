@@ -5,7 +5,8 @@ import {
   destroyCard,
   validateCardForm,
 } from './billing';
-import { renderExpressCheckout } from '../express/index';
+import { checkoutSurface } from '../express/index';
+import { waitForDependencies } from '../express/shared/dependencies';
 import { initAirwallexSDK } from '../utils/sdk';
 import type { Order } from '../../types';
 
@@ -88,11 +89,12 @@ const setupUIElements = () => {
 
 const init = (): void => {
   $(document).ready(async() => {
+    await waitForDependencies();
     await initAirwallexSDK();
     setupPaymentMethodTabs();
     setupCheckoutEvents();
     setupUIElements();
-    renderExpressCheckout();
+    checkoutSurface.render();
   });
 };
 

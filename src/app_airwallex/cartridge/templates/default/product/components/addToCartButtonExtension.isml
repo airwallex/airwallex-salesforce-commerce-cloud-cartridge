@@ -1,0 +1,12 @@
+<isset name="configHelper" value="${require('*/cartridge/scripts/helpers/configHelper')}" scope="page" />
+
+<isif condition="${configHelper.getApplePayEnabled() || configHelper.getGooglePayEnabled()}">
+    <isinclude template="airwallex/expressCheckout" />
+    <div id="awx-express-checkout-product" class="awx-express-checkout"
+         data-product-id="${product.id}">
+        <div id="awx-apple-pay-product" class="awx-express-checkout-item"></div>
+        <div id="awx-google-pay-product" class="awx-express-checkout-item"></div>
+    </div>
+    <isinclude template="airwallex/airwallexMetadata" />
+    <input type="hidden" id="airwallex-csrf-token" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}">
+</isif>

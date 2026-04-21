@@ -7,6 +7,7 @@ import PaymentIntent from '@/cartridge/scripts/airwallex/models/PaymentIntent';
 import checkoutService from '@/cartridge/scripts/services/checkoutService';
 import paymentStatus from '@/cartridge/scripts/constants/paymentStatus';
 import errorCodes from '@/cartridge/scripts/constants/errorCodes';
+import { getTemporaryBasketId, setTemporaryBasketId } from '@/cartridge/scripts/helpers/expressBasketHelper';
 
 import type { Request, Response, NextFunction } from 'express';
 
@@ -35,10 +36,11 @@ const redirectOnError = (req: Request, res: Response, errorCode: string) => {
 };
 
 const returnFromPayment = (req: Request, res: Response, next: NextFunction) => {
-  const currentBasket = BasketMgr.getCurrentBasket();
+  const tempBasketId = getTemporaryBasketId();
+  const currentBasket = tempBasketId ? BasketMgr.getTemporaryBasket(tempBasketId) : BasketMgr.getCurrentBasket();
 
   if (!currentBasket) {
-    logger.error('No basket found on payment return');
+    logger.error('No basket found on payment return', { tempBasketId });
     res.redirect(URLUtils.url('Cart-Show').toString());
     return next();
   }
@@ -93,6 +95,9 @@ const returnFromPayment = (req: Request, res: Response, next: NextFunction) => {
     });
 
     if (result.success && result.order) {
+      if (tempBasketId) {
+        setTemporaryBasketId(null);
+      }
       res.redirect(
         URLUtils.url(
           'Airwallex-ShowConfirmation',

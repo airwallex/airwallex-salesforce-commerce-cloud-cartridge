@@ -33197,6 +33197,10 @@ declare namespace dw {
        * @return the stored basket or null if no valid stored basket exists.
        */
       static getStoredBasket(): dw.order.Basket;
+      static createTemporaryBasket(): dw.order.Basket;
+      static getTemporaryBasket(basketId: string): dw.order.Basket | null;
+      static getTemporaryBaskets(): dw.util.List<dw.order.Basket>;
+      static deleteTemporaryBasket(basket: dw.order.Basket): void;
     }
 
     /**

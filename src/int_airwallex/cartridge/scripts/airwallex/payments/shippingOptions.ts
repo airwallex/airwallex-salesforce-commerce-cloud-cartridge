@@ -1,9 +1,9 @@
-import BasketMgr = require('dw/order/BasketMgr');
 import ShippingMgr = require('dw/order/ShippingMgr');
 import Transaction = require('dw/system/Transaction');
 import URLUtils = require('dw/web/URLUtils');
 
 import { getCountryOptions } from '../util/countryOptions';
+import { getExpressBasket } from '@/cartridge/scripts/helpers/expressBasketHelper';
 import ShippingMethodModel from '*/cartridge/models/shipping/shippingMethod';
 
 import type Basket from 'dw/order/Basket';
@@ -91,13 +91,16 @@ const getAvailableShippingOptions = (shipment: Shipment, address?: AddressParams
 };
 
 interface FormData {
-  form: AddressParams;
+  form: AddressParams & {
+    isExpressProduct?: string;
+  };
 }
 
 const shippingOptions = (req: Request & FormData, res: Response, next: NextFunction) => {
   try {
-    const addressParams = req.form;
-    const basket = BasketMgr.getCurrentBasket();
+    const { isExpressProduct: isExpressProductStr, ...addressParams } = req.form;
+    const isExpressProduct = isExpressProductStr === 'true';
+    const basket = getExpressBasket(isExpressProduct);
 
     if (!basket) {
       res.json({

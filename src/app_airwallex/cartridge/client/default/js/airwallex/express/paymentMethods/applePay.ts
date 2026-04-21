@@ -1,12 +1,7 @@
 import { ExpressCheckout } from './base';
 
-import type { Payment } from '@airwallex/components-sdk';
-import type {
-  ApplePaySessionResponse,
-  ShippingOptionsResponse,
-  SelectShippingMethodResponse,
-  ExpressCheckoutAuthorizationResponse,
-} from '../../../types';
+import type { Payment, ElementOptionsTypes } from '@airwallex/components-sdk';
+import type { ApplePaySessionResponse } from '../../../types';
 import type { AvailableShippingOption } from '@/cartridge/scripts/airwallex/payments/shippingOptions';
 import type { ExpressCheckoutAddress } from '@/cartridge/scripts/airwallex/payments/expressCheckoutAuthorization';
 
@@ -38,48 +33,11 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
     }));
   }
 
-  private static async getShippingOptions(address: ApplePayContact) {
-    const req = {
-      city: address?.locality,
-      countryCode: address?.countryCode,
-      stateCode: address?.administrativeArea,
-      postalCode: address?.postalCode,
-    };
-    const res = await window.httpClient.post<ShippingOptionsResponse>('Airwallex-ShippingOptions', req);
-    return res.data.shippingMethods;
-  }
-
-  private static async selectShippingOption(shippingOption: AvailableShippingOption) {
-    const req = {
-      shipmentUUID: shippingOption.shipmentUUID,
-      shippingMethodID: shippingOption.ID,
-    };
-    const res = await window.httpClient.post<SelectShippingMethodResponse>('Airwallex-SelectShippingMethod', req);
-    return res.data;
-  }
-
   private static async startApplePaySession(validationURL: string) {
     const res = await window.httpClient.post<ApplePaySessionResponse>('Airwallex-ApplePaySession', {
       validationURL,
       origin: window.location.origin,
     });
-    return res.data;
-  }
-
-  private static async authorizePayment(
-    billingContact: ApplePayContact,
-    shippingContact: ApplePayContact,
-    email: string,
-  ) {
-    const req = {
-      billingAddress: JSON.stringify(ApplePay.formatAddress(billingContact)),
-      shippingAddress: JSON.stringify(ApplePay.formatAddress(shippingContact)),
-      email,
-    };
-    const res = await window.httpClient.post<ExpressCheckoutAuthorizationResponse>(
-      'Airwallex-ExpressCheckoutAuthorization',
-      req,
-    );
     return res.data;
   }
 
@@ -101,6 +59,9 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
 
   private onValidateMerchant = async(event: Payment.ApplePayButtonEvent['validateMerchant']) => {
     try {
+      if (this.isExpressProduct) {
+        await this.ensureTemporaryBasket();
+      }
       const { validationURL } = event.detail;
       const merchantSession = await ApplePay.startApplePaySession(validationURL);
       this.element!.completeValidation(merchantSession);
@@ -121,15 +82,12 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
       throw new Error('Invalid payment data');
     }
 
-    const { clientSecret, redirectUrl } = await ApplePay.authorizePayment(billingContact, shippingContact, email);
-
-    const intent = await this.element!.confirmIntent({
-      client_secret: clientSecret,
-    });
-
-    if (intent && redirectUrl) {
-      window.location.href = redirectUrl;
-    }
+    const { clientSecret, redirectUrl } = await this.authorizePayment(
+      ApplePay.formatAddress(billingContact),
+      ApplePay.formatAddress(shippingContact),
+      email,
+    );
+    await this.confirmAndRedirect(clientSecret, redirectUrl);
   };
 
   private onShippingAddressChange = async(event: Payment.ApplePayButtonEvent['shippingAddressChange']) => {
@@ -137,10 +95,10 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
     const updateOptions: Partial<Payment.ApplePayButtonUpdateOptions> = {};
 
     try {
-      const shippingOptions = await ApplePay.getShippingOptions(shippingAddress);
+      const shippingOptions = await this.getShippingOptions(shippingAddress);
       if (shippingOptions.length > 0) {
         const defaultShippingOption = shippingOptions[0];
-        const { grandTotal } = await ApplePay.selectShippingOption(defaultShippingOption);
+        const { grandTotal } = await this.selectShippingOption(defaultShippingOption);
 
         updateOptions.shippingMethods = ApplePay.formatShippingOptions(shippingOptions);
         updateOptions.amount = grandTotal;
@@ -159,13 +117,13 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
     const updateOptions: Partial<Payment.ApplePayButtonUpdateOptions> = {};
 
     try {
-      const shippingOptions = await ApplePay.getShippingOptions({
+      const shippingOptions = await this.getShippingOptions({
         countryCode: this.countryCode,
       });
       const matchedOption = shippingOptions.find(option => option.ID === selectedIdentifier);
 
       if (matchedOption) {
-        const { grandTotal } = await ApplePay.selectShippingOption(matchedOption);
+        const { grandTotal } = await this.selectShippingOption(matchedOption);
         updateOptions.amount = grandTotal;
       } else {
         updateOptions.errors = [{ code: 'addressUnserviceable', message: window.i18nResources.cannotShipWithMethod }];
@@ -181,7 +139,7 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
     return 'applePayButton' as const;
   }
 
-  protected getElementOptions(): Payment.ElementOptionsTypeMap['applePayButton'] {
+  protected getElementOptions(): ElementOptionsTypes['applePayButton'] {
     return {
       mode: 'payment',
       requiredBillingContactFields: ['postalAddress'],

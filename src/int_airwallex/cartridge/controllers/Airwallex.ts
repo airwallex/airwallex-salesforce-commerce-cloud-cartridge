@@ -44,6 +44,12 @@ server.post(
 );
 
 /**
+ * Create temporary basket for PDP express checkout
+ * POST /Airwallex-CreateTemporaryBasket
+ */
+server.post('CreateTemporaryBasket', server.middleware.https, csrf.validateRequest, airwallex.createTemporaryBasket);
+
+/**
  * Apple Pay session validation
  * POST /Airwallex-ApplePaySession
  */
