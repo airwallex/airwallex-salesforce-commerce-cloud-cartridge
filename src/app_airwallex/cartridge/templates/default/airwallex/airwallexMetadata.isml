@@ -3,19 +3,25 @@
 <iscomment>
     External scripts are loaded via a guarded helper instead of plain <script src>
     tags because this template is included from multiple surfaces on the same page
-    (product area, mini-cart, checkout). Plain tags would execute the SDK multiple
-    times, each execution replacing its internal closures and resetting the
-    "initialised" flag, which causes createElement() to fail.
+    (product area, mini-cart, checkout) and is also re-rendered by SFRA's
+    attributeSelect on PDP quantity / variation changes — which causes jQuery's
+    .html() to globalEval the inline scripts again.
 
-    The helper appends the <script> element only when the corresponding global is
-    still undefined, and the JS-side `waitForDependencies()` polls for readiness,
-    so the async dynamic load is fully compatible.
+    Plain tags, or a guard that only checks the global, would execute the SDK
+    multiple times: every re-execution replaces its internal closures and resets
+    the "initialised" flag, breaking createElement() and forcing a redundant
+    SDK.init() round-trip. We therefore guard on BOTH the global and the
+    presence of a script tag we already injected (data-awx-loader marker), so
+    re-injection is impossible even during the brief window where the SDK is
+    fetching but window.AirwallexComponentsSDK is still undefined.
 </iscomment>
 <script>
     window.__awxLoadScript = window.__awxLoadScript || function(globalName, src, attrs) {
         if (typeof window[globalName] !== 'undefined') return;
+        if (document.querySelector('script[data-awx-loader="' + globalName + '"]')) return;
         var s = document.createElement('script');
         s.src = src;
+        s.setAttribute('data-awx-loader', globalName);
         if (attrs) { Object.keys(attrs).forEach(function(k) { s.setAttribute(k, attrs[k]); }); }
         document.head.appendChild(s);
     };

@@ -1,5 +1,0 @@
-{
-  "captureMethod.description": "If \"Authorize only\" is selected, you will need to manually capture the funds in Airwallex. Payments made using methods that don't support hold will still be automatically captured.",
-  "captureMethod.authorizeCapture": "Authorize & capture",
-  "captureMethod.authorizeOnly": "Authorize only"
-}

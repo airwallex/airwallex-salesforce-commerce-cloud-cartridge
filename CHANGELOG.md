@@ -1,3 +1,11 @@
+## [1.16.0] - 2026-04-28
+
+### Changed
+- Translation resources are now managed from JSON source files while preserving existing EN, JA, ZH and HE coverage
+
+### Fixed
+- Prevent duplicate express checkout buttons and duplicate SDK loads after PDP quantity or variation updates
+
 ## [1.15.1] - 2026-04-21
 
 ### Added

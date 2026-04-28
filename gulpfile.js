@@ -13,7 +13,14 @@ const tsProject = ts.createProject('tsconfig.json');
 
 const destFolder = 'cartridges';
 
-const ignoreList = ['!src/{__tests__,__tests__/**}', '!src/**/*.test.ts', '!src/testingUtils.ts', '!src/**/types.ts'];
+const ignoreList = [
+  '!src/{__tests__,__tests__/**}',
+  '!src/**/*.test.ts',
+  '!src/testingUtils.ts',
+  '!src/**/types.ts',
+  // i18n source-of-truth JSON; SFCC ships the regenerated .properties under cartridge/templates/resources/
+  '!src/**/i18n/**',
+];
 
 function clean() {
   return del([destFolder]);
@@ -24,7 +31,7 @@ function replaceAsteriskImport() {
 }
 
 function renameCartridge() {
-  return rename(file => {
+  return rename((file) => {
     file.dirname = file.dirname.replace('int_airwallex', INT_AIRWALLEX_CARTRIDGE_NAME);
     file.dirname = file.dirname.replace('bm_airwallex', BM_AIRWALLEX_CARTRIDGE_NAME);
     file.dirname = file.dirname.replace('app_airwallex', APP_AIRWALLEX_CARTRIDGE_NAME);
