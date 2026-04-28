@@ -1,20 +1,18 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from '@/locales/en/translation.json';
-import enUS from '@/locales/en-US/translation.json';
-import ja from '@/locales/ja/translation.json';
-import he from '@/locales/he/translation.json';
-import zh from '@/locales/zh/translation.json';
+import en from '@/locales/en.json';
+import ja from '@/locales/ja.json';
+import he from '@/locales/he.json';
+import zh from '@/locales/zh.json';
 
-const SUPPORTED_LANGUAGES = ['en', 'en-US', 'ja', 'he', 'zh'] as const;
+const SUPPORTED_LANGUAGES = ['en', 'ja', 'he', 'zh'] as const;
 type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 // Accepts locale strings in either SFCC format (en_US) or BCP 47 format (en-US)
-// and returns the first match against SUPPORTED_LANGUAGES.
+// and returns the first base-language match against SUPPORTED_LANGUAGES.
 function matchLanguage(langs: string[]): SupportedLanguage | undefined {
   for (const lang of langs) {
     const normalized = lang.toLowerCase().replace(/_/g, '-');
-    if (normalized === 'en-us') return 'en-US';
     const base = normalized.split('-')[0];
     if ((SUPPORTED_LANGUAGES as readonly string[]).includes(base)) {
       return base as SupportedLanguage;
@@ -38,13 +36,15 @@ function detectLanguage(): SupportedLanguage {
 i18n.use(initReactI18next).init({
   resources: {
     en: { translation: en },
-    'en-US': { translation: enUS },
     ja: { translation: ja },
     he: { translation: he },
     zh: { translation: zh },
   },
   lng: detectLanguage(),
   fallbackLng: 'en',
+  // Fall back to base language when a key's value is an empty string.
+  // Required by the Airwallex i18n service (see FAQ #10).
+  returnEmptyString: false,
   interpolation: {
     escapeValue: false,
   },
