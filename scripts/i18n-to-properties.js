@@ -22,7 +22,7 @@ const BUNDLE_NAME = 'airwallex';
 const LOCALE_TO_BUNDLE_SUFFIX = {
   en: '',
   ja: '_ja',
-  zh: '_zh',
+  'zh-CN': '_zh_CN',
   he: '_he',
 };
 
@@ -73,13 +73,25 @@ function renderProperties(flat) {
   return lines.join('\n') + '\n';
 }
 
+function isGeneratedBundle(filename) {
+  return filename === `${BUNDLE_NAME}.properties` || (filename.startsWith(`${BUNDLE_NAME}_`) && filename.endsWith('.properties'));
+}
+
+function isJsonFile(filename) {
+  return filename.endsWith('.json');
+}
+
 function main() {
   if (!fs.existsSync(TRANSLATIONS_DIR)) {
     throw new Error(`Translations directory not found: ${TRANSLATIONS_DIR}`);
   }
   fs.mkdirSync(RESOURCES_DIR, { recursive: true });
 
-  const jsonFiles = fs.readdirSync(TRANSLATIONS_DIR).filter((f) => f.endsWith('.json'));
+  for (const filename of fs.readdirSync(RESOURCES_DIR).filter(isGeneratedBundle)) {
+    fs.unlinkSync(path.join(RESOURCES_DIR, filename));
+  }
+
+  const jsonFiles = fs.readdirSync(TRANSLATIONS_DIR).filter(isJsonFile);
   if (jsonFiles.length === 0) {
     throw new Error(`No JSON translation files found in ${TRANSLATIONS_DIR}`);
   }
@@ -88,25 +100,18 @@ function main() {
     const locale = path.basename(filename, '.json');
     if (!(locale in LOCALE_TO_BUNDLE_SUFFIX)) {
       const scriptPath = path.relative(process.cwd(), __filename);
-      console.warn(
-        '[i18n-to-properties] Skipping ' +
-          filename +
-          ': locale "' +
-          locale +
-          '" is not mapped. Add it to LOCALE_TO_BUNDLE_SUFFIX in ' +
-          scriptPath +
-          '.',
-      );
+      const warning = `[i18n-to-properties] Skipping ${filename}: locale "${locale}" is not mapped. Add it to LOCALE_TO_BUNDLE_SUFFIX in ${scriptPath}.`;
+      console.warn(warning);
       continue;
     }
     const json = JSON.parse(fs.readFileSync(path.join(TRANSLATIONS_DIR, filename), 'utf8'));
     const flat = flatten(json);
     const outName = `${BUNDLE_NAME}${LOCALE_TO_BUNDLE_SUFFIX[locale]}.properties`;
     const outPath = path.join(RESOURCES_DIR, outName);
+    const relativeOutPath = path.relative(process.cwd(), outPath);
+    const keyCount = Object.keys(flat).length;
     fs.writeFileSync(outPath, renderProperties(flat));
-    console.log(
-      `[i18n-to-properties] ${filename} -> ${path.relative(process.cwd(), outPath)} (${Object.keys(flat).length} keys)`,
-    );
+    console.log(`[i18n-to-properties] ${filename} -> ${relativeOutPath} (${keyCount} keys)`);
   }
 }
 

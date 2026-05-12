@@ -1,3 +1,8 @@
+## [1.16.3] - 2026-05-12
+
+### Changed
+- Business Manager Simplified Chinese locale changed from `zh` to `zh-CN` (SFCC properties bundle is now `airwallex_zh_CN.properties`); removed the unused "English (US)" entry from the language picker
+
 ## [1.16.0] - 2026-04-28
 
 ### Changed

@@ -6,10 +6,9 @@ type LanguageOption = { value: string; label: string };
 
 const LANGUAGES: LanguageOption[] = [
   { value: 'en', label: 'English' },
-  { value: 'en-US', label: 'English (US)' },
   { value: 'ja', label: '日本語' },
   { value: 'he', label: 'עברית' },
-  { value: 'zh', label: '中文' },
+  { value: 'zh-CN', label: '中文' },
 ];
 
 const LanguageSelect = () => {
