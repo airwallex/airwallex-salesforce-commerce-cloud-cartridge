@@ -3,9 +3,9 @@ import { initReactI18next } from 'react-i18next';
 import en from '@/locales/en.json';
 import ja from '@/locales/ja.json';
 import he from '@/locales/he.json';
-import zh from '@/locales/zh.json';
+import zhCN from '@/locales/zh-CN.json';
 
-const SUPPORTED_LANGUAGES = ['en', 'ja', 'he', 'zh'] as const;
+const SUPPORTED_LANGUAGES = ['en', 'ja', 'he', 'zh-CN'] as const;
 type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 // Accepts locale strings in either SFCC format (en_US) or BCP 47 format (en-US)
@@ -13,7 +13,12 @@ type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 function matchLanguage(langs: string[]): SupportedLanguage | undefined {
   for (const lang of langs) {
     const normalized = lang.toLowerCase().replace(/_/g, '-');
+    const exactMatch = SUPPORTED_LANGUAGES.find((supportedLang) => supportedLang.toLowerCase() === normalized);
+    if (exactMatch) return exactMatch;
+
     const base = normalized.split('-')[0];
+    if (base === 'zh') return 'zh-CN';
+
     if ((SUPPORTED_LANGUAGES as readonly string[]).includes(base)) {
       return base as SupportedLanguage;
     }
@@ -38,7 +43,7 @@ i18n.use(initReactI18next).init({
     en: { translation: en },
     ja: { translation: ja },
     he: { translation: he },
-    zh: { translation: zh },
+    'zh-CN': { translation: zhCN },
   },
   lng: detectLanguage(),
   fallbackLng: 'en',
