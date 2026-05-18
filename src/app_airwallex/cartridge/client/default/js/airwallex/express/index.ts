@@ -19,5 +19,5 @@ export const PRODUCT_CONTAINER_IDS = {
 };
 
 export const checkoutSurface = createSurface(CHECKOUT_CONTAINER_IDS);
-export const cartSurface = createSurface(CART_CONTAINER_IDS, 1);
-export const productSurface = createSurface(PRODUCT_CONTAINER_IDS, 2);
+export const cartSurface = createSurface(CART_CONTAINER_IDS);
+export const productSurface = createSurface(PRODUCT_CONTAINER_IDS);
