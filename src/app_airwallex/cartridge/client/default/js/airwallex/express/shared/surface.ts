@@ -6,19 +6,13 @@
  * surface owns its own element state and renders into its own set of
  * container DOM nodes.
  *
- * Use `createSurface(containerIds, priority)` to create a surface, then call
- * `.render()`, `.isRendered()`, and `.destroy()` on it. The priority is
- * coordinated through a shared cross-bundle registry (see `./priority`) so
- * only the highest-priority surface is mounted at any time — for example,
- * opening the mini-cart on a PDP must not mount a second pair of buttons
- * while the (higher-priority) product surface is already rendered.
+ * Use `createSurface(containerIds)` to create a surface, then call
+ * `.render()`, `.isRendered()`, and `.destroy()` on it.
  */
 
 import { GooglePay } from '../paymentMethods/googlePay';
 import { ApplePay } from '../paymentMethods/applePay';
 import { isExpressCheckoutEnabled, getEnabledPaymentMethods } from './config';
-import { getActiveSurfaces, hasHigherPriority, evictLowerPriority } from './priority';
-import type { ActiveEntry } from './priority';
 import type { ExpressCheckoutMethodsResponse } from '../../../types';
 import type { ExpressCheckoutProps, ExpressCheckout } from '../paymentMethods/base';
 
@@ -131,13 +125,8 @@ const renderInContainers = async(
  * Creates a self-contained express checkout surface. Each surface manages its
  * own button state independently, so checkout / cart / product buttons don't
  * interfere with each other even if multiple surfaces exist in the DOM.
- *
- * `priority` is the surface's slot in the shared `__awxActiveSurfaces`
- * registry. Higher numbers win: when `render()` is called, any lower-priority
- * surfaces are torn down, and the call short-circuits if a higher-priority
- * surface is already active (e.g. opening the mini-cart on a PDP).
  */
-export const createSurface = (containerIds: ExpressCheckoutContainerIds, priority = 0): ExpressCheckoutSurface => {
+export const createSurface = (containerIds: ExpressCheckoutContainerIds): ExpressCheckoutSurface => {
   const state: ExpressCheckoutState = { googlePay: null, applePay: null };
 
   // Monotonic counter incremented on every destroy(). A render captures the
@@ -147,65 +136,15 @@ export const createSurface = (containerIds: ExpressCheckoutContainerIds, priorit
   // the mismatch via `isAborted` and bails out before calling createElement.
   let generation = 0;
 
-  let activeEntry: ActiveEntry | null = null;
-
-  const unregister = (): void => {
-    if (!activeEntry) return;
-    const surfaces = getActiveSurfaces();
-    const idx = surfaces.indexOf(activeEntry);
-    if (idx !== -1) surfaces.splice(idx, 1);
-    activeEntry = null;
-  };
-
   const destroy = (): void => {
     generation++;
     destroyState(state);
-    unregister();
-  };
-
-  // Idempotent: a second render() call (e.g. from a duplicate mini-cart
-  // mutation event) must not push another entry — otherwise the registry
-  // accumulates orphans that destroy() can't reach.
-  const register = (): void => {
-    if (activeEntry) return;
-    activeEntry = { priority, destroy };
-    getActiveSurfaces().push(activeEntry);
   };
 
   return {
     render: async options => {
-      // A higher-priority surface (e.g. PDP) is already mounted — leave it alone.
-      if (hasHigherPriority(priority)) return;
-      // Tear down any lower-priority surfaces (e.g. an open mini-cart) before
-      // taking the slot ourselves.
-      evictLowerPriority(priority);
-      // Claim the slot synchronously so concurrent renders observe it and
-      // back off, instead of all racing through their `hasHigherPriority`
-      // checks before any of them register.
-      register();
-
       const gen = generation;
-      try {
-        await renderInContainers(containerIds, state, options, () => generation !== gen);
-      } catch (error) {
-        // Only release our slot if no concurrent destroy() bumped the
-        // generation — otherwise `activeEntry` now belongs to a *later*
-        // render() and we'd evict it by mistake.
-        if (generation === gen) unregister();
-        throw error;
-      }
-
-      // If the render produced no buttons (empty cart, no enabled methods),
-      // release the slot so other surfaces can claim it. Same caveat: if a
-      // concurrent destroy() already bumped the generation, `activeEntry`
-      // is owned by a later render() and is *not* ours to remove. (This is
-      // the bug that left the registry empty after PDP quantity change:
-      // SFRA fires both `change` and `product:afterAttributeSelect`, so
-      // refreshButtons() runs twice; the first, aborted render's stale
-      // unregister() was deleting the second render's entry.)
-      if (generation === gen && !isRendered(state)) {
-        unregister();
-      }
+      await renderInContainers(containerIds, state, options, () => generation !== gen);
     },
     isRendered: () => isRendered(state),
     destroy,

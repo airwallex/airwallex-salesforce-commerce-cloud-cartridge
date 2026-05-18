@@ -1,3 +1,8 @@
+## [1.16.4] - 2026-05-18
+
+### Changed
+- Apple Pay and Google Pay express checkout buttons on the product page and mini-cart now render simultaneously instead of being limited to one surface at a time.
+
 ## [1.16.3] - 2026-05-12
 
 ### Changed
