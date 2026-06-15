@@ -1,3 +1,8 @@
+## [1.16.5] - 2026-06-15
+
+### Fixed
+- Windows setup: `npm install` no longer fails on npm 11, and the build and cartridge-upload scripts now run on Windows as well as macOS and Linux.
+
 ## [1.16.4] - 2026-05-18
 
 ### Changed
