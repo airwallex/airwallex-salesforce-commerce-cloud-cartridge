@@ -26,13 +26,21 @@ const bootstrapPackages = {
 };
 
 const createJsPath = () => {
-  const jsFiles = shell.ls(path.join(cwd, `./cartridges/${cartridgeName}/cartridge/client/**/js/**/*.js`));
+  const clientDir = path.join(cwd, `./cartridges/${cartridgeName}/cartridge/client`);
+  // glob (used by shell.ls) requires forward-slash separators on every
+  // platform; path.join yields backslashes on Windows, which glob treats as
+  // escape characters so the `**` pattern never matches. Build the pattern
+  // with forward slashes explicitly.
+  const jsGlob = `${clientDir.replace(/\\/g, '/')}/**/js/**/*.js`;
+  const jsFiles = shell.ls(jsGlob);
 
   const result = {};
   jsFiles.forEach((filePath) => {
-    let location = path.relative(path.join(cwd, `./cartridges/${cartridgeName}/cartridge/client`), filePath);
-    location = location.substr(0, location.length - 3);
-    result[location] = filePath;
+    let location = path.relative(clientDir, filePath);
+    location = location.substring(0, location.length - 3);
+    // Normalise entry keys to forward slashes so output paths match across
+    // platforms (path.relative returns backslashes on Windows).
+    result[location.replace(/\\/g, '/')] = filePath;
   });
   return result;
 };
