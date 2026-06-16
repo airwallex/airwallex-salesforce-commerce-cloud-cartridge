@@ -1,3 +1,8 @@
+## [1.16.6] - 2026-06-16
+
+### Fixed
+- Windows build: the storefront client JavaScript now compiles on Windows, where the build previously failed to locate the client bundle files.
+
 ## [1.16.5] - 2026-06-15
 
 ### Fixed
