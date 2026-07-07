@@ -1,3 +1,8 @@
+## [1.17.0] - 2026-07-07
+
+### Added
+- Support for the Airi payment method, with localized display names and Business Manager configuration
+
 ## [1.16.6] - 2026-06-16
 
 ### Fixed
