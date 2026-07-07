@@ -128,6 +128,7 @@ const PAYMENT_METHOD_NAMES: Record<string, string> = {
   philippines_online_banking: 'Philippines Online Banking',
   tabby: 'Tabby',
   octopus: 'Octopus',
+  airi: 'Airi',
 };
 
 /**
