@@ -40,6 +40,10 @@
   "captureMethod.authorizeCapture": "授权并请款",
   "captureMethod.authorizeOnly": "仅授权",
 
+  "analytics.title": "Airwallex 分析",
+  "analytics.description": "向 Airwallex 发送分析数据，以帮助排查集成问题并改善支付体验。凭据数据不会发送给 Airwallex。",
+  "analytics.enable": "向 Airwallex 发送分析数据",
+
   "actions.edit": "编辑",
   "actions.configure": "配置",
   "actions.cancel": "取消",
@@ -63,6 +67,7 @@
   "alerts.settingsSaved": "{{environment}}设置保存成功",
   "alerts.failedToUpdateEnvironment": "更新环境失败",
   "alerts.failedToSaveSettings": "保存设置失败",
+  "alerts.analyticsSettingsSaved": "分析设置保存成功",
   "alerts.copied": "已复制！",
 
   "quickLinks.title": "快速链接",

@@ -2,6 +2,7 @@ import { SettingsProvider } from '@/contexts/SettingsContext';
 import { AlertProvider } from '@/contexts/AlertContext';
 import ActiveEnvironment from '@/biz-components/ActiveEnvironment';
 import AllEnvironmentsSettings from '@/biz-components/AllEnvironmentsSettings';
+import AnalyticsSettings from '@/biz-components/AnalyticsSettings';
 import QuickLinks from '@/biz-components/QuickLinks';
 import AirwallexLogo from '@/components/AirwallexLogo';
 import LanguageSelect from '@/components/LanguageSelect';
@@ -20,6 +21,7 @@ function App() {
             <MainContent>
               <ActiveEnvironment />
               <AllEnvironmentsSettings />
+              <AnalyticsSettings />
             </MainContent>
             <QuickLinks />
           </ContentRow>

@@ -40,6 +40,10 @@
   "captureMethod.authorizeCapture": "אישור ולכידה",
   "captureMethod.authorizeOnly": "אישור בלבד",
 
+  "analytics.title": "ניתוח נתונים של Airwallex",
+  "analytics.description": "שליחת נתוני ניתוח ל-Airwallex כדי לסייע בפתרון בעיות אינטגרציה ולשפר את חוויית התשלום. נתוני אישורים לא יישלחו ל-Airwallex.",
+  "analytics.enable": "שליחת נתוני ניתוח ל-Airwallex",
+
   "actions.edit": "ערוך",
   "actions.configure": "הגדר",
   "actions.cancel": "ביטול",
@@ -63,6 +67,7 @@
   "alerts.settingsSaved": "הגדרות {{environment}} נשמרו בהצלחה",
   "alerts.failedToUpdateEnvironment": "עדכון הסביבה נכשל",
   "alerts.failedToSaveSettings": "שמירת ההגדרות נכשלה",
+  "alerts.analyticsSettingsSaved": "הגדרות ניתוח הנתונים נשמרו בהצלחה",
   "alerts.copied": "הועתק!",
 
   "quickLinks.title": "קישורים מהירים",

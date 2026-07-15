@@ -34,6 +34,7 @@ const Switch = ({ checked, onChange, children }: SwitchProps) => {
           aria-label={t('accessibility.toggleSwitch')}
           checked={checked}
           onChange={handleChange}
+          onClick={(event) => event.stopPropagation()}
         />
       </SwitchContainer>
       <SwitchLabel>{children}</SwitchLabel>

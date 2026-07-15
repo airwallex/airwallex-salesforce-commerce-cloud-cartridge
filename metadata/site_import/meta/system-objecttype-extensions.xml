@@ -117,6 +117,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="awx_v1_analytics_enabled">
+                <display-name xml:lang="x-default">Enable Airwallex Analytics</display-name>
+                <description xml:lang="x-default">Send analytics data to Airwallex for integration troubleshooting</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="Airwallex">
@@ -136,6 +144,7 @@
                 <attribute attribute-id="awx_v1_all_payment_methods_production"/>
                 <attribute attribute-id="awx_v1_auto_capture_demo"/>
                 <attribute attribute-id="awx_v1_auto_capture_production"/>
+                <attribute attribute-id="awx_v1_analytics_enabled"/>
             </attribute-group>
         </group-definitions>
     </type-extension>

@@ -2,7 +2,9 @@
  * Application configuration constants
  */
 
-export const VERSION = '1.0.0';
+const packageVersion = require('./packageVersion') as string;
+
+export const VERSION = packageVersion;
 
 export const APP_NAME = {
   CARD: 'credit_card',

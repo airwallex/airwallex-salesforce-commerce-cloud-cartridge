@@ -1,3 +1,8 @@
+## [1.18.1] - 2026-07-15
+
+### Added
+- Optional Airwallex analytics setting in Business Manager to share sanitized diagnostic logs with Airwallex for troubleshooting
+
 ## [1.17.0] - 2026-07-07
 
 ### Added

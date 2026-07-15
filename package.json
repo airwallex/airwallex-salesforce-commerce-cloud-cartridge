@@ -1,6 +1,6 @@
 {
   "name": "payment-plugin-salesforce",
-  "version": "1.17.0",
+  "version": "1.18.1",
   "main": "index.js",
   "license": "MIT",
   "workspaces": [
@@ -10,6 +10,8 @@
     "base": "../storefront-reference-architecture/cartridges/app_storefront_base/"
   },
   "scripts": {
+    "generate:version": "node scripts/generate-package-version.js",
+    "prebuild": "npm run generate:version",
     "build": "npm run i18n:properties && gulp && npm run build -w bm-web",
     "build-compile": "npm run build && sgmf-scripts --compile js && npm run fetch-bm-web",
     "i18n:properties": "node scripts/i18n-to-properties.js",
@@ -27,7 +29,7 @@
     "uploadCartridge:app:env": "node scripts/upload-cartridge.js --env app",
     "uploadCartridge": "sgmf-scripts --uploadCartridge bm_airwallex && sgmf-scripts --uploadCartridge int_airwallex && sgmf-scripts --uploadCartridge app_airwallex",
     "uploadCartridge:env": "node scripts/upload-cartridge.js --env",
-    "postinstall": "npm run i18n:properties"
+    "postinstall": "npm run i18n:properties && npm run generate:version"
   },
   "devDependencies": {
     "@airwallex/components-sdk": "^1.27.2",

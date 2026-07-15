@@ -20,6 +20,7 @@ const getInitialSettings = (): Settings => {
     enabledPaymentMethodsProduction: config?.enabledPaymentMethodsProduction || '',
     autoCaptureDemo: config?.autoCaptureDemo ?? true,
     autoCaptureProduction: config?.autoCaptureProduction ?? true,
+    analyticsEnabled: config?.analyticsEnabled ?? false,
   };
 };
 

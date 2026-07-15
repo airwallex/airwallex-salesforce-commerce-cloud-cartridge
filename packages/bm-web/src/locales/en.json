@@ -40,6 +40,10 @@
   "captureMethod.authorizeCapture": "Authorise & capture",
   "captureMethod.authorizeOnly": "Authorise only",
 
+  "analytics.title": "Airwallex analytics",
+  "analytics.description": "Send analytics data to Airwallex to help troubleshoot integration issues and improve the payment experience. Credential data will not be sent to Airwallex.",
+  "analytics.enable": "Send analytics data to Airwallex",
+
   "actions.edit": "Edit",
   "actions.configure": "Configure",
   "actions.cancel": "Cancel",
@@ -63,6 +67,7 @@
   "alerts.settingsSaved": "{{environment}} settings saved successfully",
   "alerts.failedToUpdateEnvironment": "Failed to update environment",
   "alerts.failedToSaveSettings": "Failed to save settings",
+  "alerts.analyticsSettingsSaved": "Analytics settings saved successfully",
   "alerts.copied": "Copied!",
 
   "quickLinks.title": "Quick links",

@@ -31,6 +31,7 @@ type CustomPreferenceMap = {
   awx_v1_all_payment_methods_production: string;
   awx_v1_auto_capture_demo: boolean;
   awx_v1_auto_capture_production: boolean;
+  awx_v1_analytics_enabled: boolean;
 };
 
 const SETTINGS_TO_PREFERENCE: Record<keyof Settings, keyof CustomPreferenceMap> = {
@@ -49,6 +50,7 @@ const SETTINGS_TO_PREFERENCE: Record<keyof Settings, keyof CustomPreferenceMap> 
   enabledPaymentMethodsProduction: 'awx_v1_all_payment_methods_production',
   autoCaptureDemo: 'awx_v1_auto_capture_demo',
   autoCaptureProduction: 'awx_v1_auto_capture_production',
+  analyticsEnabled: 'awx_v1_analytics_enabled',
 };
 
 const transformSettingsToCustomPreferenceMap = (settings: Settings, keys?: (keyof Settings)[]): SaveSettingsRequest => {
