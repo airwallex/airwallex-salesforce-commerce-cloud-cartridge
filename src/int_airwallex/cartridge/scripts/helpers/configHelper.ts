@@ -25,6 +25,7 @@ export type CustomPreferenceMap = {
   awx_v1_all_payment_methods_production: string;
   awx_v1_auto_capture_demo: boolean;
   awx_v1_auto_capture_production: boolean;
+  awx_v1_analytics_enabled: boolean;
 };
 
 export type CustomPreferenceKey = keyof CustomPreferenceMap;
@@ -61,8 +62,7 @@ const airwallexConfig = {
   getEnvironment: () =>
     getCustomPreference('awx_v1_environment') &&
     (`${getCustomPreference('awx_v1_environment')}` as Environment | undefined),
-  setEnvironment: (environment: 'demo' | 'production') =>
-    setCustomPreference('awx_v1_environment', environment),
+  setEnvironment: (environment: 'demo' | 'production') => setCustomPreference('awx_v1_environment', environment),
 
   getClientId: (env = getCustomPreference('awx_v1_environment')): string | undefined => {
     if (!env) return undefined;
@@ -139,6 +139,8 @@ const airwallexConfig = {
     return getCustomPreference(`awx_v1_auto_capture_${env}`) ?? true;
   },
 
+  isAnalyticsEnabled: (): boolean => getCustomPreference('awx_v1_analytics_enabled') === true,
+
   getApplePayEnabled: (env = getCustomPreference('awx_v1_environment')): boolean => {
     if (!env) return false;
     const expressCheckout = getCustomPreference(`awx_v1_express_checkout_${env}`) ?? '';
@@ -192,6 +194,7 @@ export const setExpressCheckout = airwallexConfig.setExpressCheckout;
 export const setEnabledPaymentMethods = airwallexConfig.setEnabledPaymentMethods;
 export const isEnabled = airwallexConfig.isEnabled;
 export const getAutoCapture = airwallexConfig.getAutoCapture;
+export const isAnalyticsEnabled = airwallexConfig.isAnalyticsEnabled;
 export const getApplePayEnabled = airwallexConfig.getApplePayEnabled;
 export const getGooglePayEnabled = airwallexConfig.getGooglePayEnabled;
 export const getPaymentMethods = airwallexConfig.getPaymentMethods;

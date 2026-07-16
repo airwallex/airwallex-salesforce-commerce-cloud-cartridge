@@ -4,8 +4,22 @@
 
 import Logger = require('dw/system/Logger');
 import Log = require('dw/system/Log');
+import type { AirTrackerSeverity } from '../airwallex/airtracker/types';
 
 const LOG_CATEGORY = 'Airwallex';
+type LocalLogLevel = 'debug' | 'info' | 'warn' | 'error';
+const AIRTRACKER_EVENT_NAMES: Record<LocalLogLevel, string> = {
+  debug: 'sfcc_debug',
+  info: 'sfcc_info',
+  warn: 'sfcc_warning',
+  error: 'sfcc_error',
+};
+const AIRTRACKER_SEVERITIES: Record<LocalLogLevel, AirTrackerSeverity> = {
+  debug: 'info',
+  info: 'info',
+  warn: 'info',
+  error: 'error',
+};
 
 /**
  * Get the SFCC logger instance
@@ -29,34 +43,71 @@ const formatMessage = (message: string, context?: Record<string, unknown>): stri
 };
 
 /**
+ * Mirror a local log to AirTracker without affecting the application flow.
+ */
+const mirrorLog = (level: LocalLogLevel, message: string, context?: Record<string, unknown>): void => {
+  try {
+    // Lazy loading prevents a circular dependency because authentication also logs locally.
+    const airTracker = require('./airTracker') as {
+      trackLog: (
+        severity: AirTrackerSeverity,
+        eventName: string,
+        logMessage: string,
+        logContext?: Record<string, unknown>,
+      ) => boolean;
+    };
+    if (context) {
+      airTracker.trackLog(AIRTRACKER_SEVERITIES[level], AIRTRACKER_EVENT_NAMES[level], message, context);
+      return;
+    }
+    airTracker.trackLog(AIRTRACKER_SEVERITIES[level], AIRTRACKER_EVENT_NAMES[level], message);
+  } catch {
+    // Remote diagnostics must never interfere with local logging or checkout.
+  }
+};
+
+/**
  * Log a debug message
  */
 const debug = (message: string, context?: Record<string, unknown>): void => {
-  getLogger().debug(formatMessage(message, context));
+  const formattedMessage = formatMessage(message, context);
+  getLogger().debug(formattedMessage);
+  mirrorLog('debug', message, context);
 };
 
 /**
  * Log an info message
  */
 const info = (message: string, context?: Record<string, unknown>): void => {
-  getLogger().info(formatMessage(message, context));
+  const formattedMessage = formatMessage(message, context);
+  getLogger().info(formattedMessage);
+  mirrorLog('info', message, context);
 };
 
 /**
  * Log a warning message
  */
 const warn = (message: string, context?: Record<string, unknown>): void => {
-  getLogger().warn(formatMessage(message, context));
+  const formattedMessage = formatMessage(message, context);
+  getLogger().warn(formattedMessage);
+  mirrorLog('warn', message, context);
 };
 
 /**
- * Log an error message
+ * Log an error message.
  */
 const error = (message: string, errorOrContext?: Error | Record<string, unknown>): void => {
+  let formattedMessage: string;
   if (errorOrContext instanceof Error) {
-    getLogger().error(`${message} | Error: ${errorOrContext.message} | Stack: ${errorOrContext.stack || 'N/A'}`);
+    formattedMessage = `${message} | Error: ${errorOrContext.message} | Stack: ${errorOrContext.stack || 'N/A'}`;
   } else {
-    getLogger().error(formatMessage(message, errorOrContext));
+    formattedMessage = formatMessage(message, errorOrContext);
+  }
+  getLogger().error(formattedMessage);
+  if (errorOrContext instanceof Error) {
+    mirrorLog('error', formattedMessage);
+  } else {
+    mirrorLog('error', message, errorOrContext);
   }
 };
 

@@ -6,10 +6,19 @@
         <user-id></user-id>
         <password/>
     </service-credential>
+    <service-credential service-credential-id="AirwallexAirTracker">
+        <url>https://o11y.airwallex.com</url>
+        <user-id></user-id>
+        <password/>
+    </service-credential>
 
     <service-profile service-profile-id="Airwallex">
         <timeout-millis>30000</timeout-millis>
         <cb-enabled>false</cb-enabled>
+    </service-profile>
+    <service-profile service-profile-id="AirwallexAirTracker">
+        <timeout-millis>3000</timeout-millis>
+        <cb-enabled>true</cb-enabled>
     </service-profile>
 
     <service service-id="AirwallexPublicAPI">
@@ -20,5 +29,14 @@
         <mock-mode-enabled>false</mock-mode-enabled>
         <profile-id>Airwallex</profile-id>
         <credential-id>AirwallexPublicAPI</credential-id>
+    </service>
+    <service service-id="AirwallexAirTracker">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>airtracker</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>AirwallexAirTracker</profile-id>
+        <credential-id>AirwallexAirTracker</credential-id>
     </service>
 </services>

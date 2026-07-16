@@ -308,6 +308,18 @@ describe('configHelper', () => {
     });
   });
 
+  describe('isAnalyticsEnabled', () => {
+    it('returns false by default', () => {
+      expect(configHelper.isAnalyticsEnabled()).toBe(false);
+    });
+
+    it('returns the configured analytics preference', () => {
+      Site._setPreference('awx_v1_analytics_enabled', true);
+
+      expect(configHelper.isAnalyticsEnabled()).toBe(true);
+    });
+  });
+
   describe('getWebhookUrl', () => {
     it('returns storefront URL when site has httpsHostName configured', () => {
       Site._setHostConfig({ httpsHostName: 'www.mystore.com', ID: 'MySite' });

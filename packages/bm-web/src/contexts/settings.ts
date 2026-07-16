@@ -16,6 +16,7 @@ export type Settings = {
   enabledPaymentMethodsProduction: string;
   autoCaptureDemo: boolean;
   autoCaptureProduction: boolean;
+  analyticsEnabled: boolean;
 };
 
 export type SettingsContextType = {

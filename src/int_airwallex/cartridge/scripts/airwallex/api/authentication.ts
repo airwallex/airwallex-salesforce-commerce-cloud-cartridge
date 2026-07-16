@@ -4,11 +4,12 @@
  */
 
 import baseClient from './baseClient';
-import { getClientId, getApiKey } from '../../helpers/configHelper';
+import { getClientId, getApiKey, getEnvironment } from '../../helpers/configHelper';
 import logger from '../../helpers/logger';
 import { API_ENDPOINTS } from '../../constants/apiEndpoints';
 import { ERROR_CODES } from '../../constants/errorCodes';
 import CacheMgr = require('dw/system/CacheMgr');
+import Site = require('dw/system/Site');
 
 import type { Environment } from '../../constants/apiEndpoints';
 import type { AuthTokenResponse, ApiResponse } from './types';
@@ -31,6 +32,15 @@ interface CachedToken {
  */
 const getCache = () => {
   return CacheMgr.getCache(CACHE_ID);
+};
+
+const getCacheKey = (environment?: Environment): string => {
+  if (!environment) {
+    return CACHE_KEY;
+  }
+  const site = Site.getCurrent();
+  const clientId = getClientId(environment) || 'unknown';
+  return `${CACHE_KEY}:${site ? site.ID : 'unknown'}:${environment}:${clientId}`;
 };
 
 /**
@@ -94,11 +104,12 @@ const isTokenExpired = (cachedToken: CachedToken): boolean => {
 /**
  * Get an access token (from cache or fetch new)
  */
-const getAccessToken = (): string | null => {
+const getAccessToken = (environment = getEnvironment()): string | null => {
   const cache = getCache();
+  const cacheKey = getCacheKey(environment);
 
   // Try to get from cache
-  const cachedToken = cache.get(CACHE_KEY) as CachedToken | null;
+  const cachedToken = cache.get(cacheKey) as CachedToken | null;
 
   // If we have a valid cached token, return it
   if (cachedToken && !isTokenExpired(cachedToken)) {
@@ -108,10 +119,10 @@ const getAccessToken = (): string | null => {
   // Token is missing or expired, fetch new one
   if (cachedToken) {
     // Invalidate expired token
-    cache.invalidate(CACHE_KEY);
+    cache.invalidate(cacheKey);
   }
 
-  const response = fetchNewToken();
+  const response = fetchNewToken(environment);
 
   if (response.success && response.data) {
     // Store in cache
@@ -120,7 +131,7 @@ const getAccessToken = (): string | null => {
       expiresAt: new Date(response.data.expires_at).getTime(),
     };
 
-    cache.put(CACHE_KEY, newCachedToken);
+    cache.put(cacheKey, newCachedToken);
 
     return response.data.token;
   }
@@ -129,11 +140,19 @@ const getAccessToken = (): string | null => {
 };
 
 /**
+ * Read a cached token without making a network request.
+ */
+const getCachedAccessToken = (environment = getEnvironment()): string | null => {
+  const cachedToken = getCache().get(getCacheKey(environment)) as CachedToken | null;
+  return cachedToken && !isTokenExpired(cachedToken) ? cachedToken.token : null;
+};
+
+/**
  * Check if the cached token is still valid
  */
-const isTokenValid = (): boolean => {
+const isTokenValid = (environment = getEnvironment()): boolean => {
   const cache = getCache();
-  const cachedToken = cache.get(CACHE_KEY) as CachedToken | null;
+  const cachedToken = cache.get(getCacheKey(environment)) as CachedToken | null;
 
   if (!cachedToken) {
     return false;
@@ -145,8 +164,8 @@ const isTokenValid = (): boolean => {
 /**
  * Get authorization headers for API requests
  */
-const getAuthHeaders = (): Record<string, string> | null => {
-  const token = getAccessToken();
+const getAuthHeaders = (environment = getEnvironment()): Record<string, string> | null => {
+  const token = getAccessToken(environment);
 
   if (!token) {
     return null;
@@ -161,9 +180,9 @@ const getAuthHeaders = (): Record<string, string> | null => {
 /**
  * Clear the token cache (useful for testing or on auth errors)
  */
-const clearTokenCache = (): void => {
+const clearTokenCache = (environment = getEnvironment()): void => {
   const cache = getCache();
-  cache.invalidate(CACHE_KEY);
+  cache.invalidate(getCacheKey(environment));
   logger.info('Token cache cleared');
 };
 
@@ -178,6 +197,7 @@ const hasCredentials = (): boolean => {
 
 const authentication = {
   getAccessToken,
+  getCachedAccessToken,
   fetchNewToken,
   getAuthHeaders,
   clearTokenCache,
@@ -187,4 +207,12 @@ const authentication = {
 
 module.exports = authentication;
 export default authentication;
-export { getAccessToken, fetchNewToken, getAuthHeaders, clearTokenCache, hasCredentials, isTokenValid };
+export {
+  getAccessToken,
+  getCachedAccessToken,
+  fetchNewToken,
+  getAuthHeaders,
+  clearTokenCache,
+  hasCredentials,
+  isTokenValid,
+};

@@ -40,6 +40,10 @@
   "captureMethod.authorizeCapture": "オーソリおよびキャプチャ",
   "captureMethod.authorizeOnly": "オーソリのみ",
 
+  "analytics.title": "Airwallex アナリティクス",
+  "analytics.description": "統合の問題解決と支払い体験の改善に役立てるため、分析データを Airwallex に送信します。認証情報は Airwallex に送信されません。",
+  "analytics.enable": "分析データを Airwallex に送信する",
+
   "actions.edit": "編集",
   "actions.configure": "設定",
   "actions.cancel": "キャンセル",
@@ -63,6 +67,7 @@
   "alerts.settingsSaved": "{{environment}}設定が正常に保存されました",
   "alerts.failedToUpdateEnvironment": "環境の更新に失敗しました",
   "alerts.failedToSaveSettings": "設定の保存に失敗しました",
+  "alerts.analyticsSettingsSaved": "アナリティクス設定が正常に保存されました",
   "alerts.copied": "コピー完了！",
 
   "quickLinks.title": "クイックリンク",

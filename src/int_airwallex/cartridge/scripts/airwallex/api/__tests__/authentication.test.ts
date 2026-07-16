@@ -10,6 +10,7 @@ jest.mock('../baseClient', () => ({
 jest.mock('../../../helpers/configHelper', () => ({
   getClientId: jest.fn(),
   getApiKey: jest.fn(),
+  getEnvironment: jest.fn(),
 }));
 
 jest.mock('../../../helpers/logger', () => ({
@@ -20,17 +21,20 @@ jest.mock('../../../helpers/logger', () => ({
 }));
 
 const CacheMgr = require('dw/system/CacheMgr');
+const Site = require('dw/system/Site');
 
 import authentication from '../authentication';
 import baseClient from '../baseClient';
-import { getClientId, getApiKey } from '../../../helpers/configHelper';
+import { getClientId, getApiKey, getEnvironment } from '../../../helpers/configHelper';
 import logger from '../../../helpers/logger';
 
-const { getAccessToken, getAuthHeaders, clearTokenCache, hasCredentials, isTokenValid } = authentication;
+const { getAccessToken, getCachedAccessToken, getAuthHeaders, clearTokenCache, hasCredentials, isTokenValid } =
+  authentication;
 
 const mockBaseClient = baseClient as jest.Mocked<typeof baseClient>;
 const mockGetClientId = getClientId as jest.Mock;
 const mockGetApiKey = getApiKey as jest.Mock;
+const mockGetEnvironment = getEnvironment as jest.Mock;
 const mockLogger = logger as jest.Mocked<typeof logger>;
 
 describe('Authentication', () => {
@@ -38,10 +42,12 @@ describe('Authentication', () => {
     // Reset all mocks
     jest.clearAllMocks();
     CacheMgr._reset();
+    Site._reset();
 
     // Default mock implementations
     mockGetClientId.mockReturnValue('test-client-id');
     mockGetApiKey.mockReturnValue('test-api-key');
+    mockGetEnvironment.mockReturnValue(undefined);
   });
 
   describe('hasCredentials', () => {
@@ -260,6 +266,68 @@ describe('Authentication', () => {
           expiresAt: futureDate,
         }),
       );
+    });
+
+    it('returns a valid cached token without making a network request', () => {
+      const cache = CacheMgr.getCache('AirwallexTokenCache');
+      cache.put('access_token', {
+        token: 'cached-token',
+        expiresAt: Date.now() + 30 * 60 * 1000,
+      });
+
+      expect(getCachedAccessToken()).toBe('cached-token');
+      expect(mockBaseClient.post).not.toHaveBeenCalled();
+    });
+
+    it('does not expose expired tokens to remote logging', () => {
+      const cache = CacheMgr.getCache('AirwallexTokenCache');
+      cache.put('access_token', {
+        token: 'expired-token',
+        expiresAt: Date.now() - 1000,
+      });
+
+      expect(getCachedAccessToken()).toBeNull();
+    });
+
+    it('keeps cached tokens isolated by environment', () => {
+      const futureDate = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+      mockBaseClient.post
+        .mockReturnValueOnce({
+          success: true,
+          data: { token: 'demo-token', expires_at: futureDate },
+          statusCode: 201,
+        })
+        .mockReturnValueOnce({
+          success: true,
+          data: { token: 'production-token', expires_at: futureDate },
+          statusCode: 201,
+        });
+
+      expect(getAccessToken('demo')).toBe('demo-token');
+      expect(getAccessToken('production')).toBe('production-token');
+      expect(getCachedAccessToken('demo')).toBe('demo-token');
+      expect(getCachedAccessToken('production')).toBe('production-token');
+    });
+
+    it('keeps cached tokens isolated by site', () => {
+      const futureDate = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+      mockBaseClient.post
+        .mockReturnValueOnce({
+          success: true,
+          data: { token: 'site-a-token', expires_at: futureDate },
+          statusCode: 201,
+        })
+        .mockReturnValueOnce({
+          success: true,
+          data: { token: 'site-b-token', expires_at: futureDate },
+          statusCode: 201,
+        });
+
+      Site._setHostConfig({ ID: 'SiteA' });
+      expect(getAccessToken('demo')).toBe('site-a-token');
+      Site._setHostConfig({ ID: 'SiteB' });
+      expect(getAccessToken('demo')).toBe('site-b-token');
+      expect(mockBaseClient.post).toHaveBeenCalledTimes(2);
     });
   });
 
