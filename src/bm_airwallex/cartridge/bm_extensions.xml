@@ -5,7 +5,9 @@
         <description xml:lang="x-default">Airwallex Settings</description>
         <exec pipeline="AirwallexSettings" node="Start"/>
         <sub-pipelines>
-            <pipeline name="AirwallexSettings"/>
+            <pipeline name="AirwallexSettings-Start"/>
+            <pipeline name="AirwallexSettings-Save"/>
+            <pipeline name="AirwallexSettings-GetPaymentMethodTypes"/>
         </sub-pipelines>
         <icon>airwallex.svg</icon>
     </menuaction>

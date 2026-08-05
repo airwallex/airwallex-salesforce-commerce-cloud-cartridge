@@ -35,12 +35,15 @@ export type CustomPreferenceItem = {
   value: CustomPreferenceMap[CustomPreferenceKey];
 };
 
-const currentSite = Site.getCurrent();
+// Hook modules can be initialized before SFCC establishes a site context.
+// Resolve the site per operation so a missing context is never cached for later requests or jobs.
+const getCurrentSite = () => Site.getCurrent();
 
 const getCustomPreference = <T extends keyof CustomPreferenceMap>(
   field: T,
   fallback?: CustomPreferenceMap[T],
 ): CustomPreferenceMap[T] | undefined => {
+  const currentSite = getCurrentSite();
   if (!currentSite) {
     return;
   }
@@ -49,6 +52,7 @@ const getCustomPreference = <T extends keyof CustomPreferenceMap>(
 };
 
 const setCustomPreference = <T extends keyof CustomPreferenceMap>(field: T, value: CustomPreferenceMap[T]) => {
+  const currentSite = getCurrentSite();
   if (!currentSite) {
     return;
   }
@@ -163,6 +167,7 @@ const airwallexConfig = {
   },
 
   getWebhookUrl: (): string => {
+    const currentSite = getCurrentSite();
     if (!currentSite) {
       return URLUtils.https('AirwallexWebhook-Notify').toString();
     }

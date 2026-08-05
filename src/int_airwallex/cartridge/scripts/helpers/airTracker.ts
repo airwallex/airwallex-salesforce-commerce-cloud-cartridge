@@ -8,7 +8,7 @@ import Site = require('dw/system/Site');
 import UUIDUtils = require('dw/util/UUIDUtils');
 import authentication from '../airwallex/api/authentication';
 import airTrackerClient from '../airwallex/airtracker/airTrackerClient';
-import type { AirTrackerSeverity } from '../airwallex/airtracker/types';
+import type { AirTrackerEvent, AirTrackerSeverity } from '../airwallex/airtracker/types';
 import type { Environment } from '../constants/apiEndpoints';
 import configHelper from './configHelper';
 
@@ -23,7 +23,6 @@ const PRIVATE_KEY_PATTERN =
   /^(?:name)$|(?:(?:x[_-]?)?api[_-]?key|token|secret|password|authorization|client[_-]?secret|first[_-]?name|last[_-]?name|full[_-]?name|customer[_-]?name|email|phone|mobile|address[12]?|city|state|province|postal[_-]?code|postcode|zip|card[_-]?number|cvc|cvv|expir(?:y|ation)(?:[_-]?(?:month|year|date))?)$/i;
 const PRIVATE_VALUE_PATTERN =
   /((?:"?(?:[\w-]*(?:api[_-]?key|token|secret|password|authorization|client[_-]?secret|card[_-]?number|cvc|cvv)|first[_-]?name|last[_-]?name|full[_-]?name|customer[_-]?name|name|email|phone|mobile|address[12]?|city|state|province|postal[_-]?code|postcode|zip|expir(?:y|ation)(?:[_-]?(?:month|year|date))?)"?)\s*[:=]\s*)("[^"]*"|'[^']*'|(?:Bearer\s+)?[^\s,|}\[{]+)/gi;
-let isResolvingAccessToken = false;
 
 const maskEmail = (_match: string, user: string, domain: string): string => {
   const maskedUser =
@@ -112,17 +111,58 @@ const getAirTrackerSessionId = (): string => {
   }
 };
 
-const getAccountId = (environment: Environment): string => {
-  let token = authentication.getCachedAccessToken(environment);
-  if (!token) {
-    isResolvingAccessToken = true;
-    try {
-      token = authentication.getAccessToken(environment);
-    } finally {
-      isResolvingAccessToken = false;
-    }
+let bufferedEventsByExecution: Record<string, AirTrackerEvent[]> = {};
+let bufferedContextByExecution: Record<string, { environment: Environment; accountId: string }> = {};
+let fallbackExecutionId: string | null = null;
+
+const getRequestId = (): string | null => {
+  try {
+    return typeof request !== 'undefined' && request.requestID ? request.requestID : null;
+  } catch {
+    return null;
   }
-  return airTrackerClient.decodeAccountId(token);
+};
+
+const getExecutionId = (): string | null => getRequestId() || fallbackExecutionId;
+
+const startBufferedLogging = (): boolean => {
+  try {
+    const requestId = getRequestId();
+    const executionId = requestId || UUIDUtils.createUUID();
+    const remainingContexts = { ...bufferedContextByExecution };
+    delete remainingContexts[executionId];
+    bufferedEventsByExecution = {
+      ...bufferedEventsByExecution,
+      [executionId]: [],
+    };
+    bufferedContextByExecution = remainingContexts;
+    if (!requestId) {
+      fallbackExecutionId = executionId;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const setBufferedLoggingContext = (environment: Environment, token: string): boolean => {
+  try {
+    const executionId = getExecutionId();
+    if (!executionId || !bufferedEventsByExecution[executionId]) {
+      return false;
+    }
+
+    bufferedContextByExecution = {
+      ...bufferedContextByExecution,
+      [executionId]: {
+        environment,
+        accountId: airTrackerClient.decodeAccountId(token),
+      },
+    };
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 const trackLog = (
@@ -131,32 +171,72 @@ const trackLog = (
   message: string,
   context?: Record<string, unknown>,
 ): boolean => {
-  if (!configHelper.isAnalyticsEnabled() || isResolvingAccessToken) {
+  if (!configHelper.isAnalyticsEnabled()) {
     return false;
   }
 
   try {
-    const environment = configHelper.getEnvironment();
+    const executionId = getExecutionId();
+    if (!executionId || !bufferedEventsByExecution[executionId]) {
+      return false;
+    }
+
+    const event: AirTrackerEvent = {
+      severity,
+      eventName,
+      message: formatRemoteLogMessage(message, context),
+    };
+    bufferedEventsByExecution = {
+      ...bufferedEventsByExecution,
+      [executionId]: [...bufferedEventsByExecution[executionId], event],
+    };
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const flushBufferedLogs = (): boolean => {
+  try {
+    const executionId = getExecutionId();
+    if (!executionId || !bufferedEventsByExecution[executionId]) {
+      return true;
+    }
+
+    const events = bufferedEventsByExecution[executionId];
+    const bufferedContext = bufferedContextByExecution[executionId];
+    const remainingBuffers = { ...bufferedEventsByExecution };
+    const remainingContexts = { ...bufferedContextByExecution };
+    delete remainingBuffers[executionId];
+    delete remainingContexts[executionId];
+    bufferedEventsByExecution = remainingBuffers;
+    bufferedContextByExecution = remainingContexts;
+    if (fallbackExecutionId === executionId) {
+      fallbackExecutionId = null;
+    }
+
+    if (events.length === 0) {
+      return true;
+    }
+
+    if (!configHelper.isAnalyticsEnabled()) {
+      return true;
+    }
+
+    const environment = bufferedContext?.environment ?? configHelper.getEnvironment();
     if (!environment) {
       return false;
     }
 
     const site = Site.getCurrent();
-    return airTrackerClient.sendEvents(
-      [
-        {
-          severity,
-          eventName,
-          message: formatRemoteLogMessage(message, context),
-        },
-      ],
-      {
-        environment,
-        accountId: getAccountId(environment),
-        siteId: site ? site.ID : 'unknown',
-        sessionId: getAirTrackerSessionId(),
-      },
-    ).success;
+    const accountId =
+      bufferedContext?.accountId ?? airTrackerClient.decodeAccountId(authentication.getCachedAccessToken(environment));
+    return airTrackerClient.sendEvents(events, {
+      environment,
+      accountId,
+      siteId: site ? site.ID : 'unknown',
+      sessionId: getAirTrackerSessionId(),
+    }).success;
   } catch {
     return false;
   }
@@ -165,9 +245,19 @@ const trackLog = (
 const airTracker = {
   sanitizeLogMessage,
   formatRemoteLogMessage,
+  startBufferedLogging,
+  setBufferedLoggingContext,
   trackLog,
+  flushBufferedLogs,
 };
 
 module.exports = airTracker;
 export default airTracker;
-export { sanitizeLogMessage, formatRemoteLogMessage, trackLog };
+export {
+  sanitizeLogMessage,
+  formatRemoteLogMessage,
+  startBufferedLogging,
+  setBufferedLoggingContext,
+  trackLog,
+  flushBufferedLogs,
+};

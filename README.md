@@ -13,21 +13,21 @@ When a shopper reaches checkout on an SFCC storefront powered by this cartridge,
 
 ## Compatibility
 
-| Requirement                | Version         |
-| -------------------------- | --------------- |
-| SFCC B2C Commerce          | SFRA 5.x+       |
-| Node.js (build only)       | 20.x or later   |
-| Storefront Reference Architecture | Required |
+| Requirement                       | Version       |
+| --------------------------------- | ------------- |
+| SFCC B2C Commerce                 | SFRA 5.x+     |
+| Node.js (build only)              | 20.x or later |
+| Storefront Reference Architecture | Required      |
 
 ## Architecture
 
 The cartridge is composed of three modules:
 
-| Cartridge        | Purpose                                                                 |
-| ---------------- | ----------------------------------------------------------------------- |
-| `int_airwallex`  | Server-side integration — API clients, payment processing, webhooks, jobs |
-| `app_airwallex`  | Storefront UI — ISML templates, client-side JavaScript, checkout flow   |
-| `bm_airwallex`   | Business Manager module — Airwallex settings configuration page         |
+| Cartridge       | Purpose                                                                   |
+| --------------- | ------------------------------------------------------------------------- |
+| `int_airwallex` | Server-side integration — API clients, payment processing, webhooks, jobs |
+| `app_airwallex` | Storefront UI — ISML templates, client-side JavaScript, checkout flow     |
+| `bm_airwallex`  | Business Manager module — Airwallex settings configuration page           |
 
 ---
 
@@ -62,15 +62,15 @@ The metadata import creates all the necessary system object extensions, custom o
 
 ### What gets imported
 
-| Component                  | Details                                                                          |
-| -------------------------- | -------------------------------------------------------------------------------- |
-| **Site Preferences**       | Airwallex settings group (`awx_v1_*`) — environment, API credentials, feature toggles |
-| **System Object Extensions** | Custom attributes on `Basket`, `Order`, and `OrderPaymentInstrument`          |
-| **Custom Object**          | `AirwallexWebhookEvent` — queue for asynchronous webhook processing             |
-| **Payment Processors**     | `AIRWALLEX_CREDIT_CARD`, `AIRWALLEX_ONLINE`                                     |
-| **Payment Methods**        | `AirwallexCreditCard`, `AirwallexOnline`                                        |
-| **Service**                | `AirwallexPublicAPI` — HTTP service for Airwallex API calls                     |
-| **Job**                    | `AirwallexProcessWebhooks` — processes webhook events every 5 minutes           |
+| Component                    | Details                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------- |
+| **Site Preferences**         | Airwallex settings group (`awx_v1_*`) — environment, API credentials, feature toggles |
+| **System Object Extensions** | Custom attributes on `Basket`, `Order`, and `OrderPaymentInstrument`                  |
+| **Custom Object**            | `AirwallexWebhookEvent` — queue for asynchronous webhook processing                   |
+| **Payment Processors**       | `AIRWALLEX_CREDIT_CARD`, `AIRWALLEX_ONLINE`                                           |
+| **Payment Methods**          | `AirwallexCreditCard`, `AirwallexOnline`                                              |
+| **Service**                  | `AirwallexPublicAPI` — HTTP service for Airwallex API calls                           |
+| **Job**                      | `AirwallexProcessWebhooks` — processes webhook events every 5 minutes                 |
 
 ### Steps
 
@@ -142,11 +142,11 @@ Create a `dw.json` file in the project root with your SFCC credentials:
 }
 ```
 
-| Field          | Description                                                                                              |
-| -------------- | -------------------------------------------------------------------------------------------------------- |
-| `hostname`     | Your SFCC realm hostname (from Business Manager > Administration > Site Development > Development Setup) |
-| `username`     | Your Business Manager username                                                                            |
-| `password`     | Your WebDAV access key (not your BM password — generate from Account Manager > API Client)                |
+| Field          | Description                                                                                                               |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `hostname`     | Your SFCC realm hostname (from Business Manager > Administration > Site Development > Development Setup)                  |
+| `username`     | Your Business Manager username                                                                                            |
+| `password`     | Your WebDAV access key (not your BM password — generate from Account Manager > API Client)                                |
 | `code-version` | The active code version on your realm (visible in Business Manager > Administration > Site Development > Code Deployment) |
 
 > **Security note:** The `dw.json` file is git-ignored by default. Never commit this file to version control.
@@ -216,8 +216,10 @@ After uploading, you need to register the cartridges in Business Manager so SFCC
 3. In the **Cartridges** field, add:
 
    ```
-   bm_airwallex:int_airwallex:app_storefront_base
+   bm_airwallex:int_airwallex
    ```
+
+   The Business Manager controller uses the native SFCC controller API, so `app_storefront_base` is not required on the Business Manager cartridge path. Keep `app_storefront_base` on the storefront site path as described above.
 
 4. Click **Apply**
 
@@ -287,33 +289,33 @@ After enabling the cartridge, you'll find a dedicated Airwallex settings page in
 
 The cartridge supports three Airwallex environments. Configure the credentials for the environment you want to use:
 
-| Setting               | Description                                                                                   |
-| --------------------- | --------------------------------------------------------------------------------------------- |
-| **Environment**       | Select `Sandbox` or `Production`. |
-| **Client ID**         | Your Airwallex API Client ID for the selected environment.                                    |
-| **API Key**           | Your Airwallex API Key for the selected environment.                                          |
-| **Webhook Secret**    | The webhook signing secret from your Airwallex account (see [Configure Webhooks](#6-configure-webhooks)). |
+| Setting            | Description                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------------- |
+| **Environment**    | Select `Sandbox` or `Production`.                                                                         |
+| **Client ID**      | Your Airwallex API Client ID for the selected environment.                                                |
+| **API Key**        | Your Airwallex API Key for the selected environment.                                                      |
+| **Webhook Secret** | The webhook signing secret from your Airwallex account (see [Configure Webhooks](#6-configure-webhooks)). |
 
 > **Where to find your credentials:** Log in to [Airwallex](https://www.airwallex.com/app) > **Settings > Developer > API keys**. Generate a new API key pair if needed.
 
 ### Configure payment features
 
-| Setting                       | Default | Description                                                                                          |
-| ----------------------------- | ------- | ---------------------------------------------------------------------------------------------------- |
-| **Auto Capture**              | `true`  | When enabled, payments are automatically captured when the order is placed. Disable for manual capture (e.g., capture at fulfillment). |
-| **Enable Credit Card**        | `false` | Enable credit/debit card payments at checkout.                                                       |
-| **Enable Apple Pay**          | `false` | Enable Apple Pay express checkout. Requires Apple Pay to be configured in your Airwallex account.     |
-| **Enable Google Pay**         | `false` | Enable Google Pay express checkout. Requires Google Pay to be configured in your Airwallex account.   |
-| **Enable Airwallex Analytics** | `false` | When enabled, diagnostic logs are sent to Airwallex to help troubleshoot integration issues.         |
+| Setting                        | Default | Description                                                                                                                            |
+| ------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Auto Capture**               | `true`  | When enabled, payments are automatically captured when the order is placed. Disable for manual capture (e.g., capture at fulfillment). |
+| **Enable Credit Card**         | `false` | Enable credit/debit card payments at checkout.                                                                                         |
+| **Enable Apple Pay**           | `false` | Enable Apple Pay express checkout. Requires Apple Pay to be configured in your Airwallex account.                                      |
+| **Enable Google Pay**          | `false` | Enable Google Pay express checkout. Requires Google Pay to be configured in your Airwallex account.                                    |
+| **Enable Airwallex Analytics** | `false` | When enabled, diagnostic logs are sent to Airwallex to help troubleshoot integration issues.                                           |
 
 > **Important:** Payment methods must be activated in your Airwallex account before enabling them in the cartridge. Log in to [Airwallex](https://www.airwallex.com/app) > **Payments > Payment methods > Other available payment methods** to activate the desired payment methods.
 
 ### Airwallex environments
 
-| Environment   | URL                    | Usage                                          |
-| ------------- | ------------------------------- | ---------------------------------------------- |
-| `Sandbox`        | `demo.airwallex.com`        | Pre-production testing with sandbox credentials    |
-| `Production`  | `airwallex.com`             | Live transactions with real payment methods     |
+| Environment  | URL                  | Usage                                           |
+| ------------ | -------------------- | ----------------------------------------------- |
+| `Sandbox`    | `demo.airwallex.com` | Pre-production testing with sandbox credentials |
+| `Production` | `airwallex.com`      | Live transactions with real payment methods     |
 
 We recommend starting with `Sandbox` for initial setup and testing, then switching to `Production` when ready to go live.
 
@@ -395,13 +397,13 @@ The `AirwallexPublicAPI` service has communication logging enabled by default. T
 
 ### Common issues
 
-| Issue                                    | Solution                                                                                         |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Payment methods not appearing at checkout | Verify the cartridge path order, ensure payment methods are enabled both in SFCC and in your Airwallex account. |
-| API authentication failures              | Double-check Client ID and API Key for the active environment. Ensure they match the correct Airwallex environment. |
-| Webhook events not processing            | Verify the webhook secret is correct, the job is enabled, and the webhook URL is accessible from the internet. |
-| Order status not updating after payment  | Check that the `AirwallexProcessWebhooks` job is running. Review `AirwallexWebhookEvent` custom objects for failed events. |
-| Express checkout buttons not appearing   | Ensure Apple Pay / Google Pay are enabled in Airwallex Settings and configured in your Airwallex account. Apple Pay also requires domain verification. |
+| Issue                                     | Solution                                                                                                                                               |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Payment methods not appearing at checkout | Verify the cartridge path order, ensure payment methods are enabled both in SFCC and in your Airwallex account.                                        |
+| API authentication failures               | Double-check Client ID and API Key for the active environment. Ensure they match the correct Airwallex environment.                                    |
+| Webhook events not processing             | Verify the webhook secret is correct, the job is enabled, and the webhook URL is accessible from the internet.                                         |
+| Order status not updating after payment   | Check that the `AirwallexProcessWebhooks` job is running. Review `AirwallexWebhookEvent` custom objects for failed events.                             |
+| Express checkout buttons not appearing    | Ensure Apple Pay / Google Pay are enabled in Airwallex Settings and configured in your Airwallex account. Apple Pay also requires domain verification. |
 
 ---
 
@@ -437,13 +439,13 @@ payment-plugin-salesforce/
 
 ### Commands
 
-| Command                    | Description                                      |
-| -------------------------- | ------------------------------------------------ |
-| `npm run build`            | Compile TypeScript and build BM UI               |
-| `npm test`                 | Run Jest tests                                   |
-| `npm run lint`             | Run ESLint                                       |
-| `npm run lint:fix`         | Run ESLint with auto-fix                         |
-| `npm run uploadCartridge`  | Upload all cartridges to SFCC realm           |
+| Command                   | Description                         |
+| ------------------------- | ----------------------------------- |
+| `npm run build`           | Compile TypeScript and build BM UI  |
+| `npm test`                | Run Jest tests                      |
+| `npm run lint`            | Run ESLint                          |
+| `npm run lint:fix`        | Run ESLint with auto-fix            |
+| `npm run uploadCartridge` | Upload all cartridges to SFCC realm |
 
 ---
 

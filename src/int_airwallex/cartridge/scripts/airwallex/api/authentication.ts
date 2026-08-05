@@ -101,6 +101,22 @@ const isTokenExpired = (cachedToken: CachedToken): boolean => {
   return now >= cachedToken.expiresAt - TOKEN_REFRESH_BUFFER_MS;
 };
 
+const attachTokenToAirTracker = (environment: Environment | undefined, token: string): void => {
+  if (!environment) {
+    return;
+  }
+
+  try {
+    // Lazy loading avoids the authentication -> logger -> AirTracker dependency cycle.
+    const airTracker = require('../../helpers/airTracker') as {
+      setBufferedLoggingContext: (trackingEnvironment: Environment, accessToken: string) => boolean;
+    };
+    airTracker.setBufferedLoggingContext(environment, token);
+  } catch {
+    // Remote diagnostics must never interfere with authentication.
+  }
+};
+
 /**
  * Get an access token (from cache or fetch new)
  */
@@ -113,6 +129,7 @@ const getAccessToken = (environment = getEnvironment()): string | null => {
 
   // If we have a valid cached token, return it
   if (cachedToken && !isTokenExpired(cachedToken)) {
+    attachTokenToAirTracker(environment, cachedToken.token);
     return cachedToken.token;
   }
 
@@ -132,6 +149,7 @@ const getAccessToken = (environment = getEnvironment()): string | null => {
     };
 
     cache.put(cacheKey, newCachedToken);
+    attachTokenToAirTracker(environment, response.data.token);
 
     return response.data.token;
   }

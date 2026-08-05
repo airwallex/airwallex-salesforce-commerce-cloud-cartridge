@@ -3,9 +3,9 @@
 <isset name="ConfigHelper" value="${require('*/cartridge/scripts/helpers/configHelper')}" scope="page"/>
 <script>
     window.endpoints = {
-        save: '${URLUtils.https('AirwallexSettings-Save')}',
+        save: '${URLUtils.https('AirwallexSettings-Save', pdict.csrfTokenName, pdict.csrfToken)}',
         webhook: '${ConfigHelper.getWebhookUrl()}',
-        getPaymentMethodTypes: '${URLUtils.https('AirwallexSettings-GetPaymentMethodTypes')}',
+        getPaymentMethodTypes: '${URLUtils.https('AirwallexSettings-GetPaymentMethodTypes', pdict.csrfTokenName, pdict.csrfToken)}',
     }
     window.userLocale = '${request.locale}';
     window.airwallexBusinessManager = {

@@ -1,3 +1,9 @@
+## [1.19.0] - 2026-08-05
+
+### Changed
+- Simplified Business Manager setup by removing the `app_storefront_base` requirement from its cartridge path
+- Improved opt-in diagnostics by batching logs per execution and associating them with the correct merchant account
+
 ## [1.18.1] - 2026-07-15
 
 ### Added

@@ -11,6 +11,7 @@
  */
 
 import logger from '../helpers/logger';
+import { flushBufferedLogs, startBufferedLogging } from '../helpers/airTracker';
 import Status = require('dw/system/Status');
 import WebhookEvent from '../airwallex/models/WebhookEvent';
 import { processEvent } from '../services/webhookProcessor';
@@ -111,63 +112,68 @@ const processQueueItem = (item: WebhookQueueItem): boolean => {
  * @param stepExecution - Job step execution context
  */
 const execute = (params: { batchSize?: number }): Status => {
-  const startTime = Date.now();
-  const batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
+  startBufferedLogging();
+  try {
+    const startTime = Date.now();
+    const batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
 
-  logger.info('Starting webhook queue processing job', { batchSize });
+    logger.info('Starting webhook queue processing job', { batchSize });
 
-  // Get queue stats before processing
-  const pendingCount = getEventCountByStatus(QUEUE_STATUS.PENDING);
-  const failedCount = getEventCountByStatus(QUEUE_STATUS.FAILED);
+    // Get queue stats before processing
+    const pendingCount = getEventCountByStatus(QUEUE_STATUS.PENDING);
+    const failedCount = getEventCountByStatus(QUEUE_STATUS.FAILED);
 
-  logger.info('Queue status before processing', {
-    pending: pendingCount,
-    failed: failedCount,
-  });
+    logger.info('Queue status before processing', {
+      pending: pendingCount,
+      failed: failedCount,
+    });
 
-  // Dequeue events for processing
-  const items = dequeueWebhookEvents(batchSize);
+    // Dequeue events for processing
+    const items = dequeueWebhookEvents(batchSize);
 
-  // Process each event
-  let successCount = 0;
-  let errorCount = 0;
+    // Process each event
+    let successCount = 0;
+    let errorCount = 0;
 
-  if (items.length === 0) {
-    logger.info('No pending webhook events to process');
-  } else {
-    logger.info('Processing queued webhook events', { count: items.length });
+    if (items.length === 0) {
+      logger.info('No pending webhook events to process');
+    } else {
+      logger.info('Processing queued webhook events', { count: items.length });
 
-    for (const item of items) {
-      const success = processQueueItem(item);
-      if (success) {
-        successCount++;
-      } else {
-        errorCount++;
+      for (const item of items) {
+        const success = processQueueItem(item);
+        if (success) {
+          successCount++;
+        } else {
+          errorCount++;
+        }
       }
     }
+
+    // Cleanup old completed events (always run)
+    const cleanedCount = cleanupCompletedEvents(CLEANUP_DAYS);
+
+    // Get queue stats after processing
+    const remainingPending = getEventCountByStatus(QUEUE_STATUS.PENDING);
+    const totalFailed = getEventCountByStatus(QUEUE_STATUS.FAILED);
+
+    const duration = Date.now() - startTime;
+
+    logger.info('Webhook queue processing job completed', {
+      processed: items.length,
+      success: successCount,
+      errors: errorCount,
+      cleaned: cleanedCount,
+      remainingPending,
+      totalFailed,
+      durationMs: duration,
+    });
+
+    // Return OK even if some events failed - they'll be retried
+    return new Status(Status.OK);
+  } finally {
+    flushBufferedLogs();
   }
-
-  // Cleanup old completed events (always run)
-  const cleanedCount = cleanupCompletedEvents(CLEANUP_DAYS);
-
-  // Get queue stats after processing
-  const remainingPending = getEventCountByStatus(QUEUE_STATUS.PENDING);
-  const totalFailed = getEventCountByStatus(QUEUE_STATUS.FAILED);
-
-  const duration = Date.now() - startTime;
-
-  logger.info('Webhook queue processing job completed', {
-    processed: items.length,
-    success: successCount,
-    errors: errorCount,
-    cleaned: cleanedCount,
-    remainingPending,
-    totalFailed,
-    durationMs: duration,
-  });
-
-  // Return OK even if some events failed - they'll be retried
-  return new Status(Status.OK);
 };
 
 module.exports = {
