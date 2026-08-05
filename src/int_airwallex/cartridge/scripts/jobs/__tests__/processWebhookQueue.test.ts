@@ -9,6 +9,11 @@ jest.mock('../../helpers/logger', () => ({
   debug: jest.fn(),
 }));
 
+jest.mock('../../helpers/airTracker', () => ({
+  startBufferedLogging: jest.fn(),
+  flushBufferedLogs: jest.fn(),
+}));
+
 jest.mock('../../helpers/webhookQueueHelper', () => ({
   QUEUE_STATUS: {
     PENDING: 'PENDING',
@@ -40,10 +45,13 @@ const webhookQueueHelper = require('../../helpers/webhookQueueHelper');
 const { processEvent } = require('../../services/webhookProcessor');
 const WebhookEvent = require('../../airwallex/models/WebhookEvent');
 const logger = require('../../helpers/logger');
+const airTracker = require('../../helpers/airTracker');
 
 describe('processWebhookQueue', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    airTracker.startBufferedLogging.mockReset();
+    airTracker.flushBufferedLogs.mockReset();
 
     // Default mock returns
     webhookQueueHelper.dequeueWebhookEvents.mockReturnValue([]);
@@ -60,6 +68,25 @@ describe('processWebhookQueue', () => {
 
       expect(result).toBeInstanceOf(Status);
       expect(result.code).toBe(Status.OK);
+      expect(airTracker.startBufferedLogging).toHaveBeenCalledTimes(1);
+      expect(airTracker.flushBufferedLogs).toHaveBeenCalledTimes(1);
+    });
+
+    it('flushes buffered logs when the job throws', () => {
+      webhookQueueHelper.dequeueWebhookEvents.mockImplementation(() => {
+        throw new Error('Queue unavailable');
+      });
+      airTracker.flushBufferedLogs.mockReturnValue(false);
+
+      expect(() => execute({})).toThrow('Queue unavailable');
+      expect(airTracker.flushBufferedLogs).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not fail a successful job when buffered logging is unavailable', () => {
+      airTracker.startBufferedLogging.mockReturnValue(false);
+      airTracker.flushBufferedLogs.mockReturnValue(false);
+
+      expect(() => execute({})).not.toThrow();
     });
 
     it('logs when no events to process', () => {

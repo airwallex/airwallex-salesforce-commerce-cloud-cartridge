@@ -20,8 +20,13 @@ jest.mock('../../../helpers/logger', () => ({
   debug: jest.fn(),
 }));
 
+jest.mock('../../../helpers/airTracker', () => ({
+  setBufferedLoggingContext: jest.fn(),
+}));
+
 const CacheMgr = require('dw/system/CacheMgr');
 const Site = require('dw/system/Site');
+const airTracker = require('../../../helpers/airTracker');
 
 import authentication from '../authentication';
 import baseClient from '../baseClient';
@@ -88,6 +93,26 @@ describe('Authentication', () => {
   });
 
   describe('getAccessToken', () => {
+    it('attaches both new and cached tokens to the current AirTracker execution', () => {
+      const futureDate = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+      mockBaseClient.post.mockReturnValue({
+        success: true,
+        data: {
+          token: 'storefront-token',
+          expires_at: futureDate,
+        },
+        statusCode: 201,
+      });
+
+      expect(getAccessToken('demo')).toBe('storefront-token');
+      expect(airTracker.setBufferedLoggingContext).toHaveBeenLastCalledWith('demo', 'storefront-token');
+
+      (airTracker.setBufferedLoggingContext as jest.Mock).mockClear();
+      expect(getAccessToken('demo')).toBe('storefront-token');
+      expect(airTracker.setBufferedLoggingContext).toHaveBeenCalledWith('demo', 'storefront-token');
+      expect(mockBaseClient.post).toHaveBeenCalledTimes(1);
+    });
+
     it('fetches new token when cache is empty', () => {
       const futureDate = new Date(Date.now() + 30 * 60 * 1000).toISOString();
       mockBaseClient.post.mockReturnValue({

@@ -1,6 +1,6 @@
 {
   "name": "payment-plugin-salesforce",
-  "version": "1.18.1",
+  "version": "1.19.0",
   "main": "index.js",
   "license": "MIT",
   "workspaces": [
