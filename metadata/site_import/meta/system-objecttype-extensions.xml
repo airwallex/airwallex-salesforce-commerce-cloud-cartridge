@@ -248,12 +248,6 @@
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
             </attribute-definition>
-            <attribute-definition attribute-id="awxPaymentIntentClientSecret">
-                <display-name xml:lang="x-default">Airwallex Client Secret</display-name>
-                <type>string</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>false</externally-managed-flag>
-            </attribute-definition>
             <attribute-definition attribute-id="awxPaymentIntentStatus">
                 <display-name xml:lang="x-default">Airwallex Payment Status</display-name>
                 <type>string</type>

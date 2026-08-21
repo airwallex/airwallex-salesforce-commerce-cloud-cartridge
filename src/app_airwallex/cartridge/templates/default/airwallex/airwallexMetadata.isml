@@ -42,8 +42,15 @@
         applePayEnabled: ${configHelper.getApplePayEnabled()},
         googlePayEnabled: ${configHelper.getGooglePayEnabled()},
     };
+    window.__awxCardRecoveryRequested =
+        ${request.httpParameterMap.awx_card_recovery.stringValue === 'reenter'};
+    window.__awxCardRecoveryReason =
+        ${request.httpParameterMap.awx_card_recovery.stringValue === 'declined'} ? 'declined' :
+        ${request.httpParameterMap.awx_card_recovery.stringValue === 'failed'} ? 'failed' :
+        ${request.httpParameterMap.awx_card_recovery.stringValue === 'reenter'} ? 'reenter' : null;
     window.i18nResources = window.i18nResources || {
         paymentFailed: "${Resource.msg('error.paymentFailed', 'airwallex', null)}",
+        paymentDeclined: "${Resource.msg('error.paymentDeclined', 'airwallex', null)}",
         fieldsIncomplete: "${Resource.msg('error.fieldsIncomplete', 'airwallex', null)}",
         unexpectedError: "${Resource.msg('error.unexpected', 'airwallex', null)}",
         merchantValidationFailed: "${Resource.msg('error.merchantValidationFailed', 'airwallex', null)}",
@@ -52,6 +59,8 @@
         cannotShipToAddress: "${Resource.msg('error.cannotShipToAddress', 'airwallex', null)}",
         exchangeRate: "${Resource.msg('label.exchangeRate', 'airwallex', null)}",
         pay: "${Resource.msg('label.pay', 'airwallex', null)}",
+        card: "${Resource.msg('label.card', 'airwallex', 'Card')}",
+        reenterCard: "${Resource.msg('error.reenterCard', 'airwallex', 'Please re-enter your card details to continue.')}",
     };
     window.airwallexBaseUrl = window.airwallexBaseUrl || "${URLUtils.https('Airwallex')}".replace(/Airwallex+$/, '');
 </script>

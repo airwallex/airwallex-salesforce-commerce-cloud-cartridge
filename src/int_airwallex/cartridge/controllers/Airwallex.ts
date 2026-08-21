@@ -44,6 +44,17 @@ server.post(
 );
 
 /**
+ * Validate the current card PaymentIntent immediately before confirmation
+ * POST /Airwallex-ValidateCardPaymentIntent
+ */
+server.post(
+  'ValidateCardPaymentIntent',
+  server.middleware.https,
+  csrf.validateRequest,
+  airwallex.validateCardPaymentIntent,
+);
+
+/**
  * Create temporary basket for PDP express checkout
  * POST /Airwallex-CreateTemporaryBasket
  */

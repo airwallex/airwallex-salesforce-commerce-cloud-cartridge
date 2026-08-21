@@ -6,6 +6,7 @@ import selectShippingMethod from './payments/selectShippingMethod';
 import expressCheckoutAuthorization from './payments/expressCheckoutAuthorization';
 import createTemporaryBasket from './payments/createTemporaryBasket';
 import applePaySession from './payments/applePaySession';
+import validateCardPaymentIntent from './payments/validateCardPaymentIntent';
 
 export default {
   showConfirmation,
@@ -16,6 +17,7 @@ export default {
   expressCheckoutAuthorization,
   createTemporaryBasket,
   applePaySession,
+  validateCardPaymentIntent,
 };
 
 module.exports = {
@@ -27,4 +29,5 @@ module.exports = {
   expressCheckoutAuthorization,
   createTemporaryBasket,
   applePaySession,
+  validateCardPaymentIntent,
 };

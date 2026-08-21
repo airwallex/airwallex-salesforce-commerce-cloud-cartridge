@@ -6,22 +6,69 @@ interface CardFormState {
   cardNumber: CardElementState<Payment.CardNumberElementType> | null;
   expiry: CardElementState<Payment.ExpiryDateElementType> | null;
   cvc: CardElementState<Payment.CvcElementType> | null;
+  brand: string | null;
+}
+
+type CardElementStateKey = 'cardNumber' | 'expiry' | 'cvc';
+
+interface RuntimeSplitElementDetail {
+  complete?: boolean;
+  completed?: boolean;
+  brand?: unknown;
 }
 
 export const cardState: CardFormState = {
   cardNumber: null,
   expiry: null,
   cvc: null,
+  brand: null,
 };
+
+const CARD_BRAND_LABELS: Record<string, string> = {
+  visa: 'Visa',
+  mastercard: 'Mastercard',
+  maestro: 'Maestro',
+  unionpay: 'UnionPay',
+  amex: 'American Express',
+  jcb: 'JCB',
+  diners: 'Diners Club',
+  discover: 'Discover',
+};
+
+export const updateCardSummary = (): void => {
+  const paymentDetails = document.querySelector<HTMLElement>('.payment-details');
+  if (!paymentDetails) return;
+
+  let cardNumberElement = paymentDetails.querySelector<HTMLElement>('[data-awx-card-brand]');
+  if (!cardNumberElement) {
+    const cardTypeElement = document.createElement('div');
+    cardTypeElement.className = 'credit-card-type';
+    cardTypeElement.textContent = window.i18nResources.card;
+
+    cardNumberElement = document.createElement('div');
+    cardNumberElement.className = 'credit-card-number';
+    cardNumberElement.setAttribute('data-awx-card-brand', '');
+    paymentDetails.replaceChildren(cardTypeElement, cardNumberElement);
+  }
+
+  paymentDetails.querySelector<HTMLElement>('.credit-card-type')?.setAttribute('data-awx-card-summary', '');
+  cardNumberElement.textContent = cardState.brand ? (CARD_BRAND_LABELS[cardState.brand] ?? '') : '';
+};
+
+const isElementComplete = (detail: RuntimeSplitElementDetail): boolean => detail.complete ?? detail.completed ?? false;
 
 const setupElementEvents = (
   element: SplitCardElement | null | undefined,
   container: HTMLDivElement,
-  stateKey: keyof CardFormState,
+  stateKey: CardElementStateKey,
 ): void => {
-  element?.on('change', (e: CustomEvent) => {
+  element?.on('change', e => {
+    const isComplete = isElementComplete(e.detail);
     if (cardState[stateKey]) {
-      cardState[stateKey]!.complete = e.detail.complete;
+      cardState[stateKey]!.complete = isComplete;
+    }
+    if (isComplete) {
+      container.classList.remove('error');
     }
   });
 
@@ -67,6 +114,7 @@ export const renderCard = async(): Promise<void> => {
     style: elementStyle,
   });
 
+  cardState.brand = null;
   cardState.cardNumber = { element: cardNumberElement, container: cardNumberContainer, complete: false };
   cardState.expiry = { element: expiryElement, container: cardExpiryContainer, complete: false };
   cardState.cvc = { element: cvcElement, container: cardCvcContainer, complete: false };
@@ -76,14 +124,14 @@ export const renderCard = async(): Promise<void> => {
   cvcElement?.mount(cardCvcContainer);
 
   cardNumberElement?.on('change', e => {
-    // @ts-ignore
-    if (e.detail.complete) {
+    const detail = e.detail as typeof e.detail & RuntimeSplitElementDetail;
+    cardState.brand = typeof detail.brand === 'string' ? detail.brand.toLowerCase() : null;
+    if (isElementComplete(detail)) {
       expiryElement?.focus();
     }
   });
   expiryElement?.on('change', e => {
-    // @ts-ignore
-    if (e.detail.complete) {
+    if (isElementComplete(e.detail)) {
       cvcElement?.focus();
     }
   });
@@ -97,6 +145,7 @@ export const destroyCard = () => {
   cardState.cardNumber?.element?.destroy();
   cardState.expiry?.element?.destroy();
   cardState.cvc?.element?.destroy();
+  cardState.brand = null;
 };
 
 export const validateCardForm = (): void => {

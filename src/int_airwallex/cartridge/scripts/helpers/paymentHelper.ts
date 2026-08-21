@@ -33,10 +33,10 @@ const createBasketPaymentInstrument = (
     // Remove any existing Airwallex payment instruments first
     basket.removeAllPaymentInstruments();
 
-    // Create new payment instrument
+    // Create new payment instrument. Client secret is stored on the basket, not here,
+    // so it is not copied onto the order and shown in Business Manager.
     paymentInstrument = basket.createPaymentInstrument(paymentMethodId, basket.totalGrossPrice);
     paymentInstrument.custom.awxPaymentIntentId = paymentIntent.id;
-    paymentInstrument.custom.awxPaymentIntentClientSecret = paymentIntent.clientSecret;
     paymentInstrument.custom.awxPaymentIntentCurrency = paymentIntent.currency;
   });
 
@@ -49,6 +49,18 @@ const createBasketPaymentInstrument = (
 const getBasketPaymentInstrument = (basket: Basket, paymentMethodId: string): PaymentInstrument | null => {
   const paymentInstruments = basket.getPaymentInstruments(paymentMethodId);
   return paymentInstruments.length > 0 ? paymentInstruments[0] : null;
+};
+
+/**
+ * Remove basket payment instruments for one Airwallex payment method.
+ */
+const removeBasketPaymentInstruments = (basket: Basket, paymentMethodId: string): void => {
+  Transaction.wrap(() => {
+    const paymentInstruments = basket.getPaymentInstruments(paymentMethodId);
+    for (let i = 0; i < paymentInstruments.length; i++) {
+      basket.removePaymentInstrument(paymentInstruments[i]);
+    }
+  });
 };
 
 /**
@@ -172,6 +184,7 @@ const updatePaymentStatus = (order: Order, status: string, paymentMethodId: stri
 const paymentHelper = {
   createBasketPaymentInstrument,
   getBasketPaymentInstrument,
+  removeBasketPaymentInstruments,
   createPaymentInstrument,
   getAirwallexPaymentInstrument,
   removePaymentInstruments,
@@ -186,6 +199,7 @@ export default paymentHelper;
 export {
   createBasketPaymentInstrument,
   getBasketPaymentInstrument,
+  removeBasketPaymentInstruments,
   createPaymentInstrument,
   getAirwallexPaymentInstrument,
   removePaymentInstruments,

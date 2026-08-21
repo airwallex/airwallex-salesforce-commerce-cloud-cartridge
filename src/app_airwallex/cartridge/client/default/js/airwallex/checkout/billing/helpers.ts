@@ -3,9 +3,14 @@ import type { OrderAddress } from '../../../types';
 
 const getErrorContainer = (): HTMLElement | null => document.getElementById('awx-card-error');
 
-export const displayError = (errorMsg: string): void => {
+export const displayError = (errorMsg: string): boolean => {
   const container = getErrorContainer();
-  if (container) container.textContent = errorMsg;
+  if (!container) {
+    return false;
+  }
+
+  container.textContent = errorMsg;
+  return true;
 };
 
 export const clearError = (): void => {

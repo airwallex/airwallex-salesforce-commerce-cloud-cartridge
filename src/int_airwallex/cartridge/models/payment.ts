@@ -1,5 +1,6 @@
 import Customer = require('dw/customer/Customer');
 import Basket = require('dw/order/Basket');
+import type LineItemCtnr from 'dw/order/LineItemCtnr';
 import Collection = require('dw/util/Collection');
 import OrderPaymentInstrument = require('dw/order/OrderPaymentInstrument');
 import URLUtils = require('dw/web/URLUtils');
@@ -13,7 +14,19 @@ declare const module: NodeJS.Module & {
 const base = module.superModule;
 const collections = require('*/cartridge/scripts/util/collections');
 
-const getSelectedPaymentInstruments = (selectedPaymentInstruments: Collection<OrderPaymentInstrument>) => {
+const getStorefrontClientSecret = (lineItemCtnr: LineItemCtnr): string => {
+  try {
+    return lineItemCtnr.custom.awxPaymentIntentClientSecret || '';
+  } catch {
+    // Order objects do not define this attribute; accessing it throws in SFCC.
+    return '';
+  }
+};
+
+const getSelectedPaymentInstruments = (
+  selectedPaymentInstruments: Collection<OrderPaymentInstrument>,
+  clientSecret: string,
+) => {
   return collections.map(
     selectedPaymentInstruments,
     ({ paymentMethod, paymentTransaction, custom, creditCardType, maskedCreditCardNumber }: OrderPaymentInstrument) => {
@@ -21,7 +34,7 @@ const getSelectedPaymentInstruments = (selectedPaymentInstruments: Collection<Or
         paymentMethod,
         amount: paymentTransaction.amount.value,
         awxPaymentIntentId: custom.awxPaymentIntentId,
-        awxPaymentIntentClientSecret: custom.awxPaymentIntentClientSecret,
+        awxPaymentIntentClientSecret: clientSecret,
         awxCurrency: custom.awxPaymentIntentCurrency,
         awxContinueUrl: URLUtils.https('Airwallex-ReturnFromPayment').toString(),
         awxPaymentMethodType: custom.awxPaymentMethodType,
@@ -45,11 +58,15 @@ const getSelectedPaymentInstruments = (selectedPaymentInstruments: Collection<Or
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Payment(this: any, currentBasket: Basket, currentCustomer: Customer, countryCode: string) {
   // Call the base constructor
-  base.call(this, currentBasket, currentCustomer, countryCode);
+  if (typeof base === 'function') {
+    base.call(this, currentBasket, currentCustomer, countryCode);
+  }
 
   const { paymentInstruments } = currentBasket;
 
-  this.selectedPaymentInstruments = paymentInstruments ? getSelectedPaymentInstruments(paymentInstruments) : null;
+  this.selectedPaymentInstruments = paymentInstruments
+    ? getSelectedPaymentInstruments(paymentInstruments, getStorefrontClientSecret(currentBasket))
+    : null;
 }
 
 module.exports = Payment;

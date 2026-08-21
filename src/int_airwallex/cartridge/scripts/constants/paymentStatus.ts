@@ -55,6 +55,7 @@ export type ReturnResult = (typeof RETURN_RESULT)[keyof typeof RETURN_RESULT];
 
 module.exports = {
   PAYMENT_INTENT_STATUS,
+  PAYMENT_ATTEMPT_STATUS,
   REFUND_STATUS,
   CAPTURE_MODE,
   RETURN_RESULT,
@@ -62,6 +63,7 @@ module.exports = {
 
 export default {
   PAYMENT_INTENT_STATUS,
+  PAYMENT_ATTEMPT_STATUS,
   REFUND_STATUS,
   CAPTURE_MODE,
   RETURN_RESULT,

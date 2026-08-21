@@ -131,12 +131,14 @@
   },
   "error": {
     "paymentFailed": "支払いに失敗しました",
+    "paymentDeclined": "支払いが拒否されました。別のカードまたは支払い方法をお試しください。",
     "fieldsIncomplete": "すべての項目を入力してください",
     "unexpected": "予期しないエラーが発生しました。",
     "merchantValidationFailed": "マーチャント検証に失敗しました。",
     "noShippingOptions": "利用可能な配送オプションがありません。",
     "cannotShipWithMethod": "選択された方法では配送できません。",
     "cannotShipToAddress": "選択された住所には配送できません。",
-    "selectPaymentMethod": "前のステップに戻って、支払い方法を選択してください。"
+    "selectPaymentMethod": "前のステップに戻って、支払い方法を選択してください。",
+    "reenterCard": "続行するには、カード情報を再入力してください。"
   }
 }

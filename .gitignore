@@ -45,6 +45,7 @@ node_modules/
 dist/
 cartridges/
 release/
+coverage/
 dw.json
 metadata/site_import.zip
 
