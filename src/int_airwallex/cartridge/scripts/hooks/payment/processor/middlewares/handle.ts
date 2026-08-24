@@ -7,67 +7,18 @@ import PaymentIntent from '@/cartridge/scripts/airwallex/models/PaymentIntent';
 import logger from '@/cartridge/scripts/helpers/logger';
 import basketHelper from '@/cartridge/scripts/helpers/basketHelper';
 import paymentHelper from '@/cartridge/scripts/helpers/paymentHelper';
-import { APP_NAME, AppName, PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
+import {
+  buildPaymentIntentCreateParams,
+  cleanupStalePaymentIntent,
+  validatePaymentIntentState,
+} from '@/cartridge/scripts/helpers/paymentIntentValidation';
+import { APP_NAME, PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
+import { PAYMENT_INTENT_STATUS } from '@/cartridge/scripts/constants/paymentStatus';
 import type { HandleResult, PaymentInformation } from '../types';
 import Basket = require('dw/order/Basket');
 import OrderMgr = require('dw/order/OrderMgr');
 import Transaction = require('dw/system/Transaction');
 import URLUtils = require('dw/web/URLUtils');
-
-const buildReturnUrl = (): string => {
-  return URLUtils.abs('Airwallex-ReturnFromPayment').toString();
-};
-
-/**
- * Build the full set of params that are passed to PaymentIntent.create().
- * Used for both creating a new PI and computing the fingerprint for cache validation.
- */
-const buildCreateParams = (basket: Basket, orderId: string, appName: AppName) => ({
-  appName,
-  amount: basketHelper.getBasketTotal(basket),
-  currency: basketHelper.getBasketCurrency(basket),
-  orderId,
-  returnUrl: buildReturnUrl(),
-  order: basketHelper.buildOrderObject(basket),
-  customer: basketHelper.buildCustomerDetails(basket),
-  metadata: { basketId: basket.UUID },
-});
-
-/**
- * Check if an existing payment intent on basket is still valid.
- * Compares all create-time params against a stored fingerprint.
- * Returns the freshly fetched PI if valid, or null if the cached PI cannot be reused.
- */
-const getValidCachedPaymentIntent = (basket: Basket, appName: AppName): PaymentIntent | null => {
-  const existingPiId = basketHelper.getPaymentIntentId(basket);
-  if (!existingPiId) {
-    return null;
-  }
-
-  const storedFingerprint = basketHelper.getParamsFingerprint(basket);
-  const storedOrderNo = basketHelper.getReservedOrderNo(basket);
-  if (!storedFingerprint || !storedOrderNo) {
-    return null;
-  }
-
-  const currentParams = buildCreateParams(basket, storedOrderNo, appName);
-  const currentFingerprint = basketHelper.buildPaymentIntentFingerprint(currentParams);
-
-  if (storedFingerprint !== currentFingerprint) {
-    return null;
-  }
-
-  const existingPi = PaymentIntent.getById(existingPiId);
-  if (!existingPi) {
-    return null;
-  }
-
-  if (existingPi.isFinalState) {
-    return null;
-  }
-
-  return existingPi;
-};
 
 /**
  * Handle payment form validation and PI creation for Drop-in
@@ -97,10 +48,22 @@ const handle = (basket: Basket, paymentInformation: PaymentInformation, paymentM
  */
 const handlePayment = (basket: Basket, paymentMethodId: string): HandleResult => {
   const appName = paymentMethodId === PAYMENT_METHOD_ID.APM ? APP_NAME.APM : APP_NAME.CARD;
-  // Check if existing PI is still valid (all create params unchanged)
-  const cachedPi = getValidCachedPaymentIntent(basket, appName);
-  if (cachedPi) {
+  const existingPiId = basketHelper.getPaymentIntentId(basket);
+  const cachedValidation = existingPiId ? validatePaymentIntentState(basket, appName, existingPiId) : null;
+  if (cachedValidation?.status === 'valid') {
+    const cachedPi = cachedValidation.paymentIntent;
     logger.info('Reusing existing PaymentIntent', { paymentIntentId: cachedPi.id });
+
+    if (!paymentHelper.getBasketPaymentInstrument(basket, paymentMethodId)) {
+      paymentHelper.createBasketPaymentInstrument(
+        basket,
+        basketHelper.getBasketTotal(basket),
+        paymentMethodId,
+        cachedPi,
+      );
+    }
+
+    basketHelper.setClientSecret(basket, cachedPi.clientSecret);
 
     const redirectUrl = URLUtils.abs('Airwallex-ReturnFromPayment').append('payment_intent_id', cachedPi.id).toString();
 
@@ -116,8 +79,36 @@ const handlePayment = (basket: Basket, paymentMethodId: string): HandleResult =>
     };
   }
 
-  // Clear any stale payment data
-  basketHelper.clearAirwallexData(basket);
+  if (cachedValidation?.status === 'unavailable') {
+    logger.error('Unable to validate existing PaymentIntent', { paymentIntentId: existingPiId });
+    return {
+      fieldErrors: {},
+      serverErrors: ['Unable to validate existing payment. Please try again.'],
+      error: true,
+    };
+  }
+
+  if (
+    cachedValidation?.status === 'stale' &&
+    cachedValidation.paymentIntent &&
+    cachedValidation.paymentIntent.status !== PAYMENT_INTENT_STATUS.REQUIRES_PAYMENT_METHOD
+  ) {
+    logger.error('Existing PaymentIntent is not safe to replace', {
+      paymentIntentId: cachedValidation.paymentIntent.id,
+      status: cachedValidation.paymentIntent.status,
+    });
+    return {
+      fieldErrors: {},
+      serverErrors: ['Unable to replace existing payment. Please try again.'],
+      error: true,
+    };
+  }
+
+  if (cachedValidation?.status === 'stale') {
+    cleanupStalePaymentIntent(basket, paymentMethodId, cachedValidation.paymentIntent);
+  } else {
+    cleanupStalePaymentIntent(basket, paymentMethodId);
+  }
 
   // Reserve order number for this payment
   let reservedOrderNo: string;
@@ -133,7 +124,7 @@ const handlePayment = (basket: Basket, paymentMethodId: string): HandleResult =>
   }
 
   // Build request data (same structure used for fingerprint comparison)
-  const createParams = buildCreateParams(basket, reservedOrderNo, appName);
+  const createParams = buildPaymentIntentCreateParams(basket, reservedOrderNo, appName);
 
   // Create PaymentIntent
   const paymentIntent = PaymentIntent.create(createParams);
@@ -153,6 +144,7 @@ const handlePayment = (basket: Basket, paymentMethodId: string): HandleResult =>
     basketHelper.setPaymentIntentId(basket, paymentIntent.id);
     basketHelper.setReservedOrderNo(basket, reservedOrderNo);
     basketHelper.setParamsFingerprint(basket, fingerprint);
+    basketHelper.setClientSecret(basket, paymentIntent.clientSecret);
 
     // Create payment instrument on basket
     paymentHelper.createBasketPaymentInstrument(
@@ -190,4 +182,4 @@ const handlePayment = (basket: Basket, paymentMethodId: string): HandleResult =>
   };
 };
 
-export { handle, getValidCachedPaymentIntent };
+export { handle };

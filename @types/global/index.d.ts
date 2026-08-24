@@ -15,6 +15,10 @@ declare global {
     airwallexBaseUrl: string;
     /** Shared SDK init promise so multiple bundles don't initialise twice. Double-underscore prefix marks internal globals not intended for external use. */
     __awxSdkInitPromise?: Promise<void>;
+    /** Ephemeral server-captured checkout recovery request; never persisted outside the current page. */
+    __awxCardRecoveryRequested?: boolean;
+    /** Safe reason code used to show a localized message after card checkout returns to Billing. */
+    __awxCardRecoveryReason?: 'reenter' | 'declined' | 'failed' | null;
     /** Reference to the SDK init function that was last used. Used to detect when the CDN script is re-executed and methods are replaced with new closures. */
     __awxInitializedSDKRef?: Function;
     /** Guarded script loader injected by airwallexMetadata.isml. Appends a <script> tag only when the named global is still undefined. */
@@ -30,6 +34,7 @@ declare global {
     };
     i18nResources: {
       paymentFailed: string;
+      paymentDeclined: string;
       fieldsIncomplete: string;
       unexpectedError: string;
       merchantValidationFailed: string;
@@ -38,6 +43,8 @@ declare global {
       cannotShipToAddress: string;
       exchangeRate: string;
       pay: string;
+      card: string;
+      reenterCard: string;
     };
   }
 }

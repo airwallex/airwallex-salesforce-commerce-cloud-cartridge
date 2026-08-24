@@ -74,6 +74,9 @@ export interface CardPaymentError {
   };
   message?: string;
   original_code?: string;
+  response?: {
+    data?: CardPaymentError;
+  };
 }
 
 export interface Amount {

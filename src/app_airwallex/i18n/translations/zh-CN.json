@@ -131,12 +131,14 @@
   },
   "error": {
     "paymentFailed": "支付失败",
+    "paymentDeclined": "支付被拒绝。请尝试其他银行卡或支付方式。",
     "fieldsIncomplete": "请填写所有字段。",
     "unexpected": "发生意外错误",
     "merchantValidationFailed": "商户验证失败",
     "noShippingOptions": "没有可用的配送选项",
     "cannotShipWithMethod": "无法使用所选方式发货",
     "cannotShipToAddress": "无法发货到所选地址",
-    "selectPaymentMethod": "请返回上一步并选择付款方式。"
+    "selectPaymentMethod": "请返回上一步并选择付款方式。",
+    "reenterCard": "请重新输入银行卡信息以继续。"
   }
 }

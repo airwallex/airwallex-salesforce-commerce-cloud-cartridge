@@ -131,12 +131,14 @@
   },
   "error": {
     "paymentFailed": "Payment failed",
+    "paymentDeclined": "Payment was declined. Please try another card or payment method.",
     "fieldsIncomplete": "Please complete all the fields.",
     "unexpected": "An unexpected error occurred",
     "merchantValidationFailed": "Merchant validation failed",
     "noShippingOptions": "No shipping options available",
     "cannotShipWithMethod": "Cannot ship with the selected method",
     "cannotShipToAddress": "Cannot ship to the selected address",
-    "selectPaymentMethod": "Please return to the previous step and select a payment method."
+    "selectPaymentMethod": "Please return to the previous step and select a payment method.",
+    "reenterCard": "Please re-enter your card details to continue."
   }
 }

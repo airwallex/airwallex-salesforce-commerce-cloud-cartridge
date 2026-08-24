@@ -131,12 +131,14 @@
   },
   "error": {
     "paymentFailed": "התשלום נכשל",
+    "paymentDeclined": "התשלום נדחה. נסו כרטיס או אמצעי תשלום אחר.",
     "fieldsIncomplete": "אנא מלא את כל השדות.",
     "unexpected": "אירעה שגיאה בלתי צפויה",
     "merchantValidationFailed": "אימות הסוחר נכשל",
     "noShippingOptions": "אין אפשרויות משלוח זמינות",
     "cannotShipWithMethod": "לא ניתן לשלוח בשיטה שנבחרה",
     "cannotShipToAddress": "לא ניתן לשלוח לכתובת שנבחרה",
-    "selectPaymentMethod": "אנא חזור לשלב הקודם ובחר אמצעי תשלום."
+    "selectPaymentMethod": "אנא חזור לשלב הקודם ובחר אמצעי תשלום.",
+    "reenterCard": "כדי להמשיך, יש להזין מחדש את פרטי הכרטיס."
   }
 }

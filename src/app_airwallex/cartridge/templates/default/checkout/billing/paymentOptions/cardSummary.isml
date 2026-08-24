@@ -1,6 +1,13 @@
-<div class="credit-card-type">
-    ${Resource.msg('cardBrand.' + payment.creditCardBrand.split(' ').join('_'), 'airwallex', '-')}
-</div>
-<div class="credit-card-number">
-    ${payment.maskedCreditCardNumber}
-</div>
+<isif condition="${payment.creditCardBrand && payment.maskedCreditCardNumber}">
+    <div class="credit-card-type" data-awx-card-summary>
+        ${Resource.msg('cardBrand.' + payment.creditCardBrand.split(' ').join('_'), 'airwallex', '-')}
+    </div>
+    <div class="credit-card-number">
+        ${payment.maskedCreditCardNumber}
+    </div>
+<iselse/>
+    <div class="credit-card-type" data-awx-card-summary>
+        ${Resource.msg('label.card', 'airwallex', 'Card')}
+    </div>
+    <div class="credit-card-number" data-awx-card-brand></div>
+</isif>

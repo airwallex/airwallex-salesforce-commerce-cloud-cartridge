@@ -1,3 +1,12 @@
+## [1.21.0] - 2026-08-21
+
+### Fixed
+- Card checkout now validates pending payments, restores reusable sessions, and guides shoppers back to payment after stale, declined, or failed attempts
+- Express Checkout buttons no longer appear on the final order review step
+
+### Security
+- Payment client secrets are no longer stored on order payment instruments
+
 ## [1.19.0] - 2026-08-05
 
 ### Changed

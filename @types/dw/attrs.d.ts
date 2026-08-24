@@ -55,6 +55,10 @@ declare class BasketCustomAttributes {
   /**
    * Returns the custom attribute with this name. Throws an exception if attribute is not defined
    */
+  awxPaymentIntentId: string | null;
+  awxPaymentIntentClientSecret: string | null;
+  awxReservedOrderNo: string | null;
+  awxPaymentIntentParamsFingerprint: string | null;
   [name: string]: any;
 }
 
@@ -186,7 +190,6 @@ declare class CustomerPaymentInstrumentCustomAttributes {
    * Returns the custom attribute with this name. Throws an exception if attribute is not defined
    */
   awxPaymentIntentId: string;
-  awxPaymentIntentClientSecret: string;
   awxPaymentIntentCurrency: string;
   awxContinueUrl: string;
   awxPaymentMethodType: string;
@@ -318,7 +321,6 @@ declare class OrderPaymentInstrumentCustomAttributes {
    * Returns the custom attribute with this name. Throws an exception if attribute is not defined
    */
   awxPaymentIntentId: string;
-  awxPaymentIntentClientSecret: string;
   awxPaymentIntentCurrency: string;
   awxContinueUrl: string;
   awxPaymentMethodType: string;
@@ -353,7 +355,6 @@ declare class PaymentInstrumentCustomAttributes {
    * Returns the custom attribute with this name. Throws an exception if attribute is not defined
    */
   awxPaymentIntentId: string;
-  awxPaymentIntentClientSecret: string;
   awxPaymentIntentCurrency: string;
   awxContinueUrl: string;
   awxPaymentMethodType: string;
