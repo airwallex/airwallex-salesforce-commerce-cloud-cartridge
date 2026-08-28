@@ -1,3 +1,5 @@
+import type { ExpressAppName } from '@/cartridge/scripts/constants/appConfig';
+
 export interface Field {
   dynamicHtmlName: string;
   formType: string;
@@ -77,5 +79,6 @@ export interface AuthorizeResult {
 }
 
 export interface PaymentInformation {
+  expressPaymentMethod?: ExpressAppName;
   [key: string]: unknown;
 }

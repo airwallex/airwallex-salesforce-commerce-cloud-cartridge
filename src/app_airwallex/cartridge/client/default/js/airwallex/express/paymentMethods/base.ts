@@ -10,6 +10,7 @@ import type {
 } from '../../../types';
 import type { AvailableShippingOption } from '@/cartridge/scripts/airwallex/payments/shippingOptions';
 import type { ExpressCheckoutAddress } from '@/cartridge/scripts/airwallex/payments/expressCheckoutAuthorization';
+import type { ExpressAppName } from '@/cartridge/scripts/constants/appConfig';
 
 type ButtonTypeToElementType = {
   googlePayButton: Payment.GooglePayButtonElementType;
@@ -125,11 +126,13 @@ export abstract class ExpressCheckout<TButtonType extends ButtonType = ButtonTyp
     billingAddress: ExpressCheckoutAddress,
     shippingAddress: ExpressCheckoutAddress,
     email: string,
+    expressPaymentMethod: ExpressAppName,
   ) {
     return this.post<ExpressCheckoutAuthorizationResponse>('Airwallex-ExpressCheckoutAuthorization', {
       billingAddress: JSON.stringify(billingAddress),
       shippingAddress: JSON.stringify(shippingAddress),
       email,
+      expressPaymentMethod,
     });
   }
 

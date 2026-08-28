@@ -3,7 +3,7 @@ import HookMgr = require('dw/system/HookMgr');
 import Transaction = require('dw/system/Transaction');
 import URLUtils = require('dw/web/URLUtils');
 
-import { PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
+import { isExpressAppName, PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
 import { getExpressBasket } from '@/cartridge/scripts/helpers/expressBasketHelper';
 
 import type { Request, Response, NextFunction } from 'express';
@@ -28,6 +28,7 @@ interface FormData {
     billingAddress: string;
     email: string;
     isExpressProduct?: string;
+    expressPaymentMethod?: string;
   };
 }
 
@@ -89,7 +90,16 @@ const expressCheckoutAuthorization = (req: Request & FormData, res: Response, ne
       billingAddress: billingAddressString,
       email,
       isExpressProduct: isExpressProductStr,
+      expressPaymentMethod,
     } = req.form;
+    if (expressPaymentMethod !== undefined && !isExpressAppName(expressPaymentMethod)) {
+      res.json({
+        error: true,
+        redirectUrl: URLUtils.https('Cart-Show').toString(),
+      });
+      return next();
+    }
+
     const shippingAddress = JSON.parse(shippingAddressString) as ExpressCheckoutAddress;
     const billingAddress = JSON.parse(billingAddressString) as ExpressCheckoutAddress;
     const isExpressProduct = isExpressProductStr === 'true';
@@ -128,7 +138,7 @@ const expressCheckoutAuthorization = (req: Request & FormData, res: Response, ne
         'app.payment.processor.' + paymentProcessor.ID.toLowerCase(),
         'Handle',
         basket,
-        {},
+        expressPaymentMethod ? { expressPaymentMethod } : {},
         paymentMethodID,
         req,
       );

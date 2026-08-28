@@ -1,3 +1,8 @@
+## [1.22.0] - 2026-08-28
+
+### Fixed
+- Corrected payment-method attribution for Apple Pay and Google Pay Express Checkout transactions.
+
 ## [1.21.0] - 2026-08-21
 
 ### Fixed

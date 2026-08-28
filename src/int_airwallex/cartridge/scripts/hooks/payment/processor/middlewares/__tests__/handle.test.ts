@@ -1,5 +1,7 @@
 export {};
 
+import type { PaymentInformation } from '../../types';
+
 jest.mock(
   '@/cartridge/scripts/airwallex/models/PaymentIntent',
   () => ({
@@ -70,7 +72,10 @@ jest.mock(
     APP_NAME: {
       APM: 'payment_plugin_salesforce_apm',
       CARD: 'payment_plugin_salesforce_card',
+      APPLE_PAY: 'applepay',
+      GOOGLE_PAY: 'googlepay',
     },
+    isExpressAppName: (value: unknown) => value === 'applepay' || value === 'googlepay',
     PAYMENT_METHOD_ID: {
       APM: 'AirwallexOnline',
       CARD: 'AirwallexCreditCard',
@@ -178,6 +183,44 @@ describe('payment handle middleware', () => {
       cachedPaymentIntent,
     );
     expect(basketHelper.setClientSecret).toHaveBeenCalledWith(basket, 'secret_cached');
+  });
+
+  it.each([
+    ['AirwallexCreditCard', 'payment_plugin_salesforce_card'],
+    ['AirwallexOnline', 'payment_plugin_salesforce_apm'],
+  ])('uses the existing app name for %s without an express discriminator', (paymentMethodId, appName) => {
+    handle(basket, {}, paymentMethodId);
+
+    expect(paymentIntentValidation.validatePaymentIntentState).toHaveBeenCalledWith(
+      basket,
+      appName,
+      cachedPaymentIntent.id,
+    );
+  });
+
+  it.each([
+    ['applepay', 'applepay'],
+    ['googlepay', 'googlepay'],
+  ] as const)('uses the %s app name for express checkout', (expressPaymentMethod, appName) => {
+    handle(basket, { expressPaymentMethod }, 'AirwallexOnline');
+
+    expect(paymentIntentValidation.validatePaymentIntentState).toHaveBeenCalledWith(
+      basket,
+      appName,
+      cachedPaymentIntent.id,
+    );
+  });
+
+  it('rejects an invalid express payment method before validating or creating a PaymentIntent', () => {
+    const paymentInformation = {
+      expressPaymentMethod: 'unsupported-wallet',
+    } as unknown as PaymentInformation;
+
+    const result = handle(basket, paymentInformation, 'AirwallexOnline');
+
+    expect(result.error).toBe(true);
+    expect(paymentIntentValidation.validatePaymentIntentState).not.toHaveBeenCalled();
+    expect(PaymentIntent.create).not.toHaveBeenCalled();
   });
 
   it('cleans stale state before creating one replacement PaymentIntent', () => {

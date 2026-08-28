@@ -12,8 +12,9 @@ import {
   cleanupStalePaymentIntent,
   validatePaymentIntentState,
 } from '@/cartridge/scripts/helpers/paymentIntentValidation';
-import { APP_NAME, PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
+import { APP_NAME, isExpressAppName, PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
 import { PAYMENT_INTENT_STATUS } from '@/cartridge/scripts/constants/paymentStatus';
+import type { ExpressAppName } from '@/cartridge/scripts/constants/appConfig';
 import type { HandleResult, PaymentInformation } from '../types';
 import Basket = require('dw/order/Basket');
 import OrderMgr = require('dw/order/OrderMgr');
@@ -37,17 +38,33 @@ const handle = (basket: Basket, paymentInformation: PaymentInformation, paymentM
       serverErrors: ['Payment method not supported.'],
       error: true,
     };
-  } else {
-    return handlePayment(basket, paymentMethodId);
   }
+
+  const expressPaymentMethod = paymentInformation.expressPaymentMethod;
+  if (
+    expressPaymentMethod !== undefined &&
+    (paymentMethodId !== PAYMENT_METHOD_ID.APM || !isExpressAppName(expressPaymentMethod))
+  ) {
+    return {
+      fieldErrors: {},
+      serverErrors: ['Express payment method not supported.'],
+      error: true,
+    };
+  }
+
+  return handlePayment(basket, paymentMethodId, expressPaymentMethod);
 };
 
 /**
  * Handle payment flow
  * Creates PaymentIntent immediately to get client_secret
  */
-const handlePayment = (basket: Basket, paymentMethodId: string): HandleResult => {
-  const appName = paymentMethodId === PAYMENT_METHOD_ID.APM ? APP_NAME.APM : APP_NAME.CARD;
+const handlePayment = (
+  basket: Basket,
+  paymentMethodId: string,
+  expressPaymentMethod?: ExpressAppName,
+): HandleResult => {
+  const appName = paymentMethodId === PAYMENT_METHOD_ID.APM ? expressPaymentMethod || APP_NAME.APM : APP_NAME.CARD;
   const existingPiId = basketHelper.getPaymentIntentId(basket);
   const cachedValidation = existingPiId ? validatePaymentIntentState(basket, appName, existingPiId) : null;
   if (cachedValidation?.status === 'valid') {

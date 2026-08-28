@@ -86,6 +86,7 @@ export class ApplePay extends ExpressCheckout<'applePayButton'> {
       ApplePay.formatAddress(billingContact),
       ApplePay.formatAddress(shippingContact),
       email,
+      'applepay',
     );
     await this.confirmAndRedirect(clientSecret, redirectUrl);
   };

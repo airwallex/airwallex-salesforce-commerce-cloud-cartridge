@@ -9,9 +9,16 @@ export const VERSION = packageVersion;
 export const APP_NAME = {
   CARD: 'credit_card',
   APM: 'apm',
+  APPLE_PAY: 'applepay',
+  GOOGLE_PAY: 'googlepay',
 } as const;
 
 export type AppName = (typeof APP_NAME)[keyof typeof APP_NAME];
+export type ExpressAppName = typeof APP_NAME.APPLE_PAY | typeof APP_NAME.GOOGLE_PAY;
+
+export const isExpressAppName = (value: unknown): value is ExpressAppName => {
+  return value === APP_NAME.APPLE_PAY || value === APP_NAME.GOOGLE_PAY;
+};
 
 export const getReferrerType = (appName: AppName): string => {
   return `salesforce_${appName}`;
@@ -35,6 +42,7 @@ export const APPLE_PAY_DOMAIN_VERIFICATION_URL = '/.well-known/apple-developer-m
 module.exports = {
   VERSION: VERSION,
   APP_NAME,
+  isExpressAppName,
   getReferrerType,
   PAYMENT_METHOD_AIRWALLEX_ONLINE,
   PAYMENT_PROCESSOR_AIRWALLEX_ONLINE,
@@ -46,6 +54,7 @@ module.exports = {
 export default {
   VERSION: VERSION,
   APP_NAME,
+  isExpressAppName,
   getReferrerType,
   PAYMENT_METHOD_AIRWALLEX_ONLINE,
   PAYMENT_PROCESSOR_AIRWALLEX_ONLINE,
