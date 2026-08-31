@@ -631,6 +631,33 @@ describe('PaymentIntent Model', () => {
       );
     });
 
+    it.each([
+      [APP_NAME.APPLE_PAY, 'salesforce_applepay'],
+      [APP_NAME.GOOGLE_PAY, 'salesforce_googlepay'],
+    ])('includes referrer_data with %s express app name', (appName, referrerType) => {
+      mockPaymentIntentClient.create.mockReturnValue({
+        success: true,
+        data: createMockResponse(),
+        statusCode: 201,
+      });
+
+      PaymentIntent.create({
+        appName,
+        amount: 100,
+        currency: 'USD',
+        orderId: 'order_123',
+      });
+
+      expect(mockPaymentIntentClient.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          referrer_data: {
+            type: referrerType,
+            version: VERSION,
+          },
+        }),
+      );
+    });
+
     it('returns null when API call fails', () => {
       mockPaymentIntentClient.create.mockReturnValue({
         success: false,

@@ -60,6 +60,7 @@ export class GooglePay extends ExpressCheckout<'googlePayButton'> {
       GooglePay.formatAddress(billingAddress),
       GooglePay.formatAddress(shippingAddress),
       email,
+      'googlepay',
     );
     await this.confirmAndRedirect(clientSecret, redirectUrl);
   };
