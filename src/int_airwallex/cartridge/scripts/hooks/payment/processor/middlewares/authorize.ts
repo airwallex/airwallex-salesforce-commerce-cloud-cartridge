@@ -9,6 +9,7 @@ import orderHelper from '@/cartridge/scripts/helpers/orderHelper';
 import paymentHelper from '@/cartridge/scripts/helpers/paymentHelper';
 import { PAYMENT_INTENT_STATUS } from '@/cartridge/scripts/constants/paymentStatus';
 import { APP_NAME, PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
+import { getMerchantWebsiteUrl } from '@/cartridge/scripts/helpers/paymentIntentValidation';
 import type { AuthorizeResult } from '../types';
 import Order = require('dw/order/Order');
 import OrderPaymentInstrument = require('dw/order/OrderPaymentInstrument');
@@ -121,6 +122,7 @@ const authorizeCardElement = (order: Order): AuthorizeResult => {
     currency,
     orderId: order.orderNo,
     returnUrl: buildReturnUrl(),
+    merchantWebsiteUrl: getMerchantWebsiteUrl(),
     metadata: orderHelper.buildOrderMetadata(order),
     paymentMethodOptions: {
       card: {

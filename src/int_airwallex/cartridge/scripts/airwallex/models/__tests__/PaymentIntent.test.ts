@@ -562,6 +562,7 @@ describe('PaymentIntent Model', () => {
         currency: 'USD',
         orderId: 'order_123',
         returnUrl: 'https://example.com/return',
+        merchantWebsiteUrl: 'https://shop.example.com',
         metadata: { key: 'value' },
         order: { type: 'physical_goods' },
         customerId: 'cus_123',
@@ -573,6 +574,7 @@ describe('PaymentIntent Model', () => {
       expect(mockPaymentIntentClient.create).toHaveBeenCalledWith(
         expect.objectContaining({
           return_url: 'https://example.com/return',
+          merchant_website_url: 'https://shop.example.com',
           metadata: { key: 'value', platform: PLATFORM_IDENTIFIER },
           order: { type: 'physical_goods' },
           customer_id: 'cus_123',

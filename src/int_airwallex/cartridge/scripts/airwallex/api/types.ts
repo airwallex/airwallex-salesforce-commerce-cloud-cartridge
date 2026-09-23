@@ -261,6 +261,7 @@ export interface CreatePaymentIntentRequest {
   descriptor?: string;
   metadata?: Record<string, string>;
   return_url?: string;
+  merchant_website_url?: string;
   payment_method_options?: PaymentMethodOptions;
   connected_account_id?: string;
   risk_control_options?: RiskControlOptions;
@@ -331,6 +332,7 @@ export interface PaymentIntentResponse {
   risk_control_options?: RiskControlOptions;
   latest_payment_attempt?: PaymentAttempt;
   return_url?: string;
+  merchant_website_url?: string;
   funds_split_data?: FundsSplitData[];
   currency_switcher?: CurrencySwitcher;
   referrer_data?: ReferrerData;

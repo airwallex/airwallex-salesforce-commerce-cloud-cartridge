@@ -25,15 +25,18 @@ jest.mock(
   { virtual: true },
 );
 jest.mock('dw/web/URLUtils', () => ({
-  abs: jest.fn(() => ({
-    toString: jest.fn(() => 'https://shop.example/Airwallex-ReturnFromPayment'),
+  abs: jest.fn((action: string) => ({
+    toString: () => `https://shop.example/${action}`,
   })),
 }));
 
+import URLUtils = require('dw/web/URLUtils');
 import basketHelper from '../basketHelper';
 import paymentHelper from '../paymentHelper';
 import {
+  buildPaymentIntentCreateParams,
   cleanupStalePaymentIntent,
+  getMerchantWebsiteUrl,
   validateCardPaymentIntent,
   validatePaymentIntentState,
 } from '../paymentIntentValidation';
@@ -97,6 +100,7 @@ const prepareFingerprint = (basket: ReturnType<typeof createBasket>): void => {
     currency: 'AUD',
     orderId: 'order-123',
     returnUrl: 'https://shop.example/Airwallex-ReturnFromPayment',
+    merchantWebsiteUrl: 'https://shop.example',
     order: {
       type: 'physical_goods',
       products: [],
@@ -107,6 +111,27 @@ const prepareFingerprint = (basket: ReturnType<typeof createBasket>): void => {
   };
   basket.custom.awxPaymentIntentParamsFingerprint = basketHelper.buildPaymentIntentFingerprint(params);
 };
+
+describe('merchant website URL', () => {
+  it('uses the storefront origin without path or query', () => {
+    expect(getMerchantWebsiteUrl()).toBe('https://shop.example');
+  });
+
+  it('strips SEO path and locale query from the checkout URL', () => {
+    (URLUtils.abs as jest.Mock).mockReturnValueOnce({
+      toString: () => 'https://zyui-002.my.commercecloud.salesforce.com/s/RefArchGlobal/checkout?lang=en_GB',
+    });
+
+    expect(getMerchantWebsiteUrl()).toBe('https://zyui-002.my.commercecloud.salesforce.com');
+  });
+
+  it('includes merchantWebsiteUrl on PaymentIntent create params', () => {
+    const params = buildPaymentIntentCreateParams(createBasket() as never, 'order-123', 'credit_card');
+
+    expect(params.merchantWebsiteUrl).toBe('https://shop.example');
+    expect(params.returnUrl).toBe('https://shop.example/Airwallex-ReturnFromPayment');
+  });
+});
 
 describe('PaymentIntent live-state validation', () => {
   beforeEach(() => {
