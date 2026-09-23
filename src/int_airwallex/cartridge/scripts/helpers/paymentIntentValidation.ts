@@ -42,12 +42,21 @@ export type PaymentIntentValidationResult =
   | StalePaymentIntentResult
   | UnavailablePaymentIntentResult;
 
+const STOREFRONT_ORIGIN_PATTERN = /^https?:\/\/[^/?#]+/i;
+
+export const getMerchantWebsiteUrl = (): string => {
+  const absoluteUrl = URLUtils.abs('Checkout-Begin').toString();
+  const origin = STOREFRONT_ORIGIN_PATTERN.exec(absoluteUrl);
+  return origin ? origin[0] : absoluteUrl;
+};
+
 export const buildPaymentIntentCreateParams = (basket: Basket, orderId: string, appName: AppName) => ({
   appName,
   amount: basketHelper.getBasketTotal(basket),
   currency: basketHelper.getBasketCurrency(basket),
   orderId,
   returnUrl: URLUtils.abs('Airwallex-ReturnFromPayment').toString(),
+  merchantWebsiteUrl: getMerchantWebsiteUrl(),
   order: basketHelper.buildOrderObject(basket),
   customer: basketHelper.buildCustomerDetails(basket),
   metadata: { basketId: basket.UUID },
@@ -158,6 +167,7 @@ export const cleanupStalePaymentIntent = (
 };
 
 const paymentIntentValidation = {
+  getMerchantWebsiteUrl,
   buildPaymentIntentCreateParams,
   validatePaymentIntentState,
   validateCardPaymentIntent,

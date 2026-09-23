@@ -247,11 +247,12 @@ describe('PaymentIntent Client', () => {
       );
     });
 
-    it('creates payment intent with descriptor and return_url', () => {
+    it('creates payment intent with descriptor, return_url, and merchant_website_url', () => {
       const requestWithDescriptor = {
         ...validRequest,
         descriptor: 'MYSHOP - Order 123',
         return_url: 'https://example.com/checkout/complete',
+        merchant_website_url: 'https://shop.example.com',
       };
 
       mockBaseClient.post.mockReturnValue({

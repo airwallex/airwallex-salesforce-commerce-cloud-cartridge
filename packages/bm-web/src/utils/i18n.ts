@@ -10,7 +10,7 @@ type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 // Accepts locale strings in either SFCC format (en_US) or BCP 47 format (en-US)
 // and returns the first base-language match against SUPPORTED_LANGUAGES.
-function matchLanguage(langs: string[]): SupportedLanguage | undefined {
+export function matchLanguage(langs: string[]): SupportedLanguage | undefined {
   for (const lang of langs) {
     const normalized = lang.toLowerCase().replace(/_/g, '-');
     const exactMatch = SUPPORTED_LANGUAGES.find((supportedLang) => supportedLang.toLowerCase() === normalized);
@@ -28,7 +28,7 @@ function matchLanguage(langs: string[]): SupportedLanguage | undefined {
 
 // Language priority: Salesforce Preferred UI Locale → browser language → English.
 // window.userLocale is injected by the ISML template from request.locale.
-function detectLanguage(): SupportedLanguage {
+export function detectLanguage(): SupportedLanguage {
   if (window.userLocale) {
     const sfccMatch = matchLanguage([window.userLocale]);
     if (sfccMatch) return sfccMatch;

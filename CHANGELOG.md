@@ -1,3 +1,8 @@
+## [1.23.0] - 2026-09-23
+
+### Changed
+- Payment Intent creation now sends the storefront website origin, so card-network reports use the site where the shopper paid.
+
 ## [1.22.0] - 2026-08-28
 
 ### Fixed

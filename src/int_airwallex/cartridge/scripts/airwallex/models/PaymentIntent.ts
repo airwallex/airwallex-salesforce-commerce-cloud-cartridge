@@ -257,6 +257,7 @@ class PaymentIntent {
     currency: string;
     orderId: string;
     returnUrl?: string;
+    merchantWebsiteUrl?: string;
     metadata?: Record<string, string>;
     order?: Order;
     customerId?: string;
@@ -270,6 +271,7 @@ class PaymentIntent {
       merchant_order_id: params.orderId,
       request_id: paymentIntentClient.generateRequestId(),
       return_url: params.returnUrl,
+      merchant_website_url: params.merchantWebsiteUrl,
       metadata: {
         ...params.metadata,
         platform: PLATFORM_IDENTIFIER,
