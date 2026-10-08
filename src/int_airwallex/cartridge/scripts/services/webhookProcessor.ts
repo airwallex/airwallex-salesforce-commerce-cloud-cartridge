@@ -14,6 +14,31 @@ import WebhookEvent from '../airwallex/models/WebhookEvent';
 import { PAYMENT_INTENT_STATUS, PaymentIntentStatus } from '../constants/paymentStatus';
 
 /**
+ * A delayed wallet return creates an order that is placed but not confirmed
+ * and not export-ready. The success webhook is the signal to fulfill it.
+ * Orders already export-ready stay as they are, including fraud holds that
+ * are not confirmed but are already marked ready.
+ */
+const confirmPendingOrder = (order: Order): void => {
+  // confirmationStatus and exportStatus are EnumValue objects. valueOf() is the numeric status.
+  const confirmationStatus = order.confirmationStatus?.valueOf();
+  const exportStatus = order.exportStatus?.valueOf();
+  if (
+    confirmationStatus === Order.CONFIRMATION_STATUS_CONFIRMED ||
+    exportStatus === Order.EXPORT_STATUS_READY ||
+    exportStatus === Order.EXPORT_STATUS_EXPORTED
+  ) {
+    return;
+  }
+
+  Transaction.wrap(() => {
+    order.setConfirmationStatus(Order.CONFIRMATION_STATUS_CONFIRMED);
+    order.setExportStatus(Order.EXPORT_STATUS_READY);
+    order.trackOrderChange('Payment confirmed after asynchronous payment return');
+  });
+};
+
+/**
  * Result of processing a webhook event
  */
 export interface ProcessResult {
@@ -50,6 +75,16 @@ export const processEvent = (event: WebhookEvent): ProcessResult => {
     case WEBHOOK_EVENTS.PAYMENT_INTENT_SUCCEEDED:
       if (order.custom.awxPaymentIntentStatus !== PAYMENT_INTENT_STATUS.SUCCEEDED) {
         const paymentIntentId = data.id as string;
+        const storedPaymentIntentId = orderHelper.getPaymentIntentId(order);
+        if (storedPaymentIntentId && paymentIntentId && storedPaymentIntentId !== paymentIntentId) {
+          logger.error('Webhook PaymentIntent does not match the order', {
+            orderNo: order.orderNo,
+            storedPaymentIntentId,
+            paymentIntentId,
+          });
+          break;
+        }
+
         const paymentIntentStatus = data.status as PaymentIntentStatus;
         const capturedAmount = data.captured_amount as number;
         const currency = data.currency as string;
@@ -62,6 +97,7 @@ export const processEvent = (event: WebhookEvent): ProcessResult => {
           currency,
         );
         orderHelper.updateOrderPaymentStatus(order, paymentIntentStatus);
+        confirmPendingOrder(order);
 
         Transaction.wrap(() => {
           order.trackOrderChange(`${WEBHOOK_EVENTS.PAYMENT_INTENT_SUCCEEDED} event received`);

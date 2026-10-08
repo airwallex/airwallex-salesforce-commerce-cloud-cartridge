@@ -46,6 +46,7 @@ export const CAPTURE_MODE = {
 export type CaptureMode = (typeof CAPTURE_MODE)[keyof typeof CAPTURE_MODE];
 
 export const RETURN_RESULT = {
+  SUCCESS: 'success',
   FAILURE: 'failure',
   CANCEL: 'cancel',
   BACK: 'back',

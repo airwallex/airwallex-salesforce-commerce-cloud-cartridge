@@ -25,6 +25,11 @@ import URLUtils = require('dw/web/URLUtils');
  * Handle payment form validation and PI creation for Drop-in
  * Called during checkout before authorization
  */
+const canReplacePaymentIntent = (status: string): boolean =>
+  status === PAYMENT_INTENT_STATUS.REQUIRES_PAYMENT_METHOD ||
+  status === PAYMENT_INTENT_STATUS.REQUIRES_CUSTOMER_ACTION ||
+  status === PAYMENT_INTENT_STATUS.CANCELLED;
+
 const handle = (basket: Basket, paymentInformation: PaymentInformation, paymentMethodId: string): HandleResult => {
   logger.info('Payment handle called', {
     basketId: basket.UUID,
@@ -108,7 +113,7 @@ const handlePayment = (
   if (
     cachedValidation?.status === 'stale' &&
     cachedValidation.paymentIntent &&
-    cachedValidation.paymentIntent.status !== PAYMENT_INTENT_STATUS.REQUIRES_PAYMENT_METHOD
+    !canReplacePaymentIntent(cachedValidation.paymentIntent.status)
   ) {
     logger.error('Existing PaymentIntent is not safe to replace', {
       paymentIntentId: cachedValidation.paymentIntent.id,

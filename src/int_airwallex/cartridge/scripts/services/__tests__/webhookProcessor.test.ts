@@ -20,6 +20,9 @@ jest.mock('../../helpers/orderHelper', () => ({
   updateOrderPaymentStatus: jest.fn(),
   getCapturedAmount: jest.fn(),
   setCapturedAmount: jest.fn(),
+  getPaymentIntentId: jest.fn(),
+  getRefundedAmount: jest.fn(),
+  setRefundedAmount: jest.fn(),
 }));
 
 jest.mock('../../helpers/paymentHelper', () => ({
@@ -27,6 +30,9 @@ jest.mock('../../helpers/paymentHelper', () => ({
 }));
 
 const webhookProcessor = require('../webhookProcessor');
+const orderHelper = require('../../helpers/orderHelper');
+const OrderMgr = require('dw/order/OrderMgr');
+const Order = require('dw/order/Order');
 const { processEvent } = webhookProcessor;
 
 // Helper to create a mock webhook event
@@ -98,6 +104,80 @@ describe('webhookProcessor', () => {
         const result = processEvent(event);
 
         expect(result.success).toBe(true);
+      });
+
+      it('confirms and marks export-ready an order left pending by a delayed wallet return', () => {
+        const order = OrderMgr.getOrder('ORDER-PENDING');
+        order.setConfirmationStatus(Order.CONFIRMATION_STATUS_NOTCONFIRMED);
+        order.setExportStatus(Order.EXPORT_STATUS_NOTEXPORTED);
+        orderHelper.getPaymentIntentId.mockReturnValue('int_abc789');
+
+        const result = processEvent(
+          createMockPaymentEvent({
+            merchantOrderId: 'ORDER-PENDING',
+            data: {
+              object: {
+                merchant_order_id: 'ORDER-PENDING',
+                id: 'int_abc789',
+                status: 'SUCCEEDED',
+                captured_amount: 100,
+                currency: 'USD',
+              },
+            },
+          }),
+        );
+
+        expect(result.success).toBe(true);
+        expect(order.confirmationStatus).toBe(Order.CONFIRMATION_STATUS_CONFIRMED);
+        expect(order.exportStatus).toBe(Order.EXPORT_STATUS_READY);
+      });
+
+      it('leaves a fraud-held order unconfirmed when it is already export-ready', () => {
+        const order = OrderMgr.getOrder('ORDER-FRAUD');
+        order.setConfirmationStatus(Order.CONFIRMATION_STATUS_NOTCONFIRMED);
+        order.setExportStatus(Order.EXPORT_STATUS_READY);
+        orderHelper.getPaymentIntentId.mockReturnValue('int_abc789');
+
+        processEvent(
+          createMockPaymentEvent({
+            merchantOrderId: 'ORDER-FRAUD',
+            data: {
+              object: {
+                merchant_order_id: 'ORDER-FRAUD',
+                id: 'int_abc789',
+                status: 'SUCCEEDED',
+              },
+            },
+          }),
+        );
+
+        expect(order.confirmationStatus).toBe(Order.CONFIRMATION_STATUS_NOTCONFIRMED);
+        expect(order.exportStatus).toBe(Order.EXPORT_STATUS_READY);
+      });
+
+      it('does not confirm the order when the webhook PaymentIntent does not match', () => {
+        const order = OrderMgr.getOrder('ORDER-MISMATCH');
+        order.setConfirmationStatus(Order.CONFIRMATION_STATUS_NOTCONFIRMED);
+        order.setExportStatus(Order.EXPORT_STATUS_NOTEXPORTED);
+        orderHelper.getPaymentIntentId.mockReturnValue('int_stored');
+
+        const result = processEvent(
+          createMockPaymentEvent({
+            merchantOrderId: 'ORDER-MISMATCH',
+            data: {
+              object: {
+                merchant_order_id: 'ORDER-MISMATCH',
+                id: 'int_other',
+                status: 'SUCCEEDED',
+              },
+            },
+          }),
+        );
+
+        expect(result.success).toBe(true);
+        expect(order.confirmationStatus).toBe(Order.CONFIRMATION_STATUS_NOTCONFIRMED);
+        expect(order.exportStatus).toBe(Order.EXPORT_STATUS_NOTEXPORTED);
+        expect(orderHelper.updateOrderPayment).not.toHaveBeenCalled();
       });
     });
 
