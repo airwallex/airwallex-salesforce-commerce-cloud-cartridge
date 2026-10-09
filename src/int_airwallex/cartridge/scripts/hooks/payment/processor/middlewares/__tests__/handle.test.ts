@@ -88,6 +88,9 @@ jest.mock(
   () => ({
     PAYMENT_INTENT_STATUS: {
       REQUIRES_PAYMENT_METHOD: 'REQUIRES_PAYMENT_METHOD',
+      REQUIRES_CUSTOMER_ACTION: 'REQUIRES_CUSTOMER_ACTION',
+      CANCELLED: 'CANCELLED',
+      PENDING: 'PENDING',
     },
   }),
   { virtual: true },
@@ -270,8 +273,30 @@ describe('payment handle middleware', () => {
     const result = handle(basket, {}, 'AirwallexCreditCard');
 
     expect(result.error).toBe(true);
+    expect(result.serverErrors).toEqual(['Unable to replace existing payment. Please try again.']);
     expect(PaymentIntent.create).not.toHaveBeenCalled();
     expect(paymentIntentValidation.cleanupStalePaymentIntent).not.toHaveBeenCalled();
     expect(basketHelper.setClientSecret).not.toHaveBeenCalled();
+  });
+
+  it.each(['REQUIRES_CUSTOMER_ACTION', 'CANCELLED'])('replaces an abandoned PaymentIntent in status %s', status => {
+    paymentIntentValidation.validatePaymentIntentState.mockReturnValue({
+      status: 'stale',
+      reason: 'unsafe_status',
+      paymentIntent: {
+        ...cachedPaymentIntent,
+        status,
+      },
+    });
+
+    const result = handle(basket, {}, 'AirwallexOnline');
+
+    expect(result.error).toBe(false);
+    expect(paymentIntentValidation.cleanupStalePaymentIntent).toHaveBeenCalledWith(
+      basket,
+      'AirwallexOnline',
+      expect.objectContaining({ status }),
+    );
+    expect(PaymentIntent.create).toHaveBeenCalledTimes(1);
   });
 });

@@ -443,6 +443,63 @@ describe('checkoutService', () => {
       expect(result.success).toBe(true);
     });
 
+    it.each([
+      ['REQUIRES_CUSTOMER_ACTION'],
+      ['REQUIRES_PAYMENT_METHOD'],
+      ['PENDING'],
+      ['PENDING_REVIEW'],
+      ['CANCELLED'],
+    ])('returns error and never places an order when PaymentIntent status is %s', status => {
+      const basket = createMockBasket();
+      const paymentIntent = createMockPaymentIntent({ status });
+
+      const result = checkoutService.processPaymentReturn(basket, paymentIntent);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('payment_failed');
+      expect(OrderMgr.createOrder).not.toHaveBeenCalled();
+      expect(OrderMgr.placeOrder).not.toHaveBeenCalled();
+      expect(basketHelper.clearAirwallexData).not.toHaveBeenCalled();
+    });
+
+    it.each([['SUCCEEDED'], ['REQUIRES_CAPTURE']])(
+      'still finalizes the order when PaymentIntent status is %s',
+      status => {
+        const basket = createMockBasket();
+        const paymentIntent = createMockPaymentIntent({ status });
+
+        const result = checkoutService.processPaymentReturn(basket, paymentIntent);
+
+        expect(result.success).toBe(true);
+        expect(OrderMgr.placeOrder).toHaveBeenCalled();
+      },
+    );
+
+    it('creates an unconfirmed order when a completed wallet return is still REQUIRES_CUSTOMER_ACTION', () => {
+      const basket = createMockBasket();
+      const paymentIntent = createMockPaymentIntent({ status: 'REQUIRES_CUSTOMER_ACTION', capturedAmount: 0 });
+
+      const result = checkoutService.processPendingPaymentReturn(basket, paymentIntent);
+
+      expect(result.success).toBe(true);
+      expect(OrderMgr.createOrder).toHaveBeenCalled();
+      expect(OrderMgr.placeOrder).toHaveBeenCalled();
+      expect(result.order.confirmationStatus).toBe(Order.CONFIRMATION_STATUS_NOTCONFIRMED);
+      expect(result.order.exportStatus).toBe(Order.EXPORT_STATUS_NOTEXPORTED);
+      expect(basketHelper.clearAirwallexData).toHaveBeenCalledWith(basket);
+    });
+
+    it('does not create a pending order for a PaymentIntent that is already succeeded', () => {
+      const basket = createMockBasket();
+      const paymentIntent = createMockPaymentIntent({ status: 'SUCCEEDED' });
+
+      const result = checkoutService.processPendingPaymentReturn(basket, paymentIntent);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('payment_failed');
+      expect(OrderMgr.createOrder).not.toHaveBeenCalled();
+    });
+
     it('creates order and returns success for valid payment', () => {
       const basket = createMockBasket();
       const paymentIntent = createMockPaymentIntent();

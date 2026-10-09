@@ -18,9 +18,11 @@ module.exports = {
   },
   moduleNameMapper: {
     '^dw/(.*)$': '<rootDir>/__mocks__/dw/$1.js',
+    // Match before the @/ alias so `import x from '@/assets/icon.svg?inline'` is stubbed.
+    '^@/.*\\.svg(\\?.*)?$': '<rootDir>/__mocks__/svgMock.js',
+    '\\.svg(\\?.*)?$': '<rootDir>/__mocks__/svgMock.js',
     // Keep @/cartridge on tsconfig paths; map remaining @/ aliases to bm-web.
     '^@/(?!cartridge/)(.*)$': '<rootDir>/packages/bm-web/src/$1',
-    '\\.svg(?:\\?inline)?$': '<rootDir>/__mocks__/svgMock.js',
   },
   collectCoverageFrom: [
     'src/**/*.{js,ts,tsx}',

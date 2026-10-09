@@ -166,32 +166,44 @@ const createOrder = (basket: Basket, reservedOrderNo?: string): CreateOrderResul
   };
 };
 
-/**
- * Finalize order after successful payment
- * Updates payment data, handles auto-capture, places order
- * @param order - The order to finalize
- * @param paymentIntent - The PaymentIntent from Airwallex
- * @returns true if order was successfully finalized
- */
-const finalizeOrder = (order: Order, paymentIntent: InstanceType<typeof PaymentIntent>): boolean => {
-  try {
-    const paymentInstruments = order.getPaymentInstruments();
-    const paymentInstrument = paymentInstruments.length > 0 ? paymentInstruments[0] : null;
-    if (paymentInstrument) {
-      const paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstrument.paymentMethod).paymentProcessor;
-      Transaction.wrap(() => {
-        paymentInstrument.paymentTransaction.setPaymentProcessor(paymentProcessor);
-      });
-    }
+type PaymentIntentModel = InstanceType<typeof PaymentIntent>;
 
-    // Update order with payment data
+const firstPaymentInstrument = (order: Order) => {
+  const paymentInstruments = order.getPaymentInstruments();
+  return paymentInstruments.length > 0 ? paymentInstruments[0] : null;
+};
+
+const assignPaymentProcessor = (order: Order): void => {
+  const paymentInstrument = firstPaymentInstrument(order);
+  if (!paymentInstrument) {
+    return;
+  }
+  const paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstrument.paymentMethod).paymentProcessor;
+  Transaction.wrap(() => {
+    paymentInstrument.paymentTransaction.setPaymentProcessor(paymentProcessor);
+  });
+};
+
+/**
+ * Finalize order after payment.
+ * awaitingPayment leaves the order placed but unconfirmed and not export-ready
+ * until a later success webhook. Otherwise the order is confirmed and export-ready,
+ * unless fraud detection flags it.
+ */
+const finalizeOrder = (
+  order: Order,
+  paymentIntent: PaymentIntentModel,
+  options?: { awaitingPayment?: boolean },
+): boolean => {
+  const awaitingPayment = options?.awaitingPayment === true;
+  try {
+    assignPaymentProcessor(order);
     orderHelper.setPaymentIntentId(order, paymentIntent.id);
     orderHelper.setPaymentStatus(order, paymentIntent.status);
     orderHelper.updatePaymentMethodInformation(order, paymentIntent);
 
-    // Handle auto-capture if needed
     let finalPaymentIntent = paymentIntent;
-    if (paymentIntent.status === PAYMENT_INTENT_STATUS.REQUIRES_CAPTURE) {
+    if (!awaitingPayment && paymentIntent.status === PAYMENT_INTENT_STATUS.REQUIRES_CAPTURE) {
       const autoCapture = configHelper.getAutoCapture();
       if (autoCapture) {
         logger.info('Auto-capturing payment', { paymentIntentId: paymentIntent.id });
@@ -202,6 +214,7 @@ const finalizeOrder = (order: Order, paymentIntent: InstanceType<typeof PaymentI
       }
     }
 
+    const paymentInstrument = firstPaymentInstrument(order);
     orderHelper.updateOrderPayment(
       order,
       finalPaymentIntent.id,
@@ -217,7 +230,6 @@ const finalizeOrder = (order: Order, paymentIntent: InstanceType<typeof PaymentI
     );
     orderHelper.updateOrderPaymentStatus(order, finalPaymentIntent.status);
 
-    // Fraud detection hook (replicates base SFCC PlaceOrder)
     const fraudDetectionStatus = hooksHelper('app.fraud.detection', 'fraudDetection', order, fraudDetection);
     if (fraudDetectionStatus.status === 'fail') {
       Transaction.wrap(() => {
@@ -227,8 +239,6 @@ const finalizeOrder = (order: Order, paymentIntent: InstanceType<typeof PaymentI
       return false;
     }
 
-    // Place the order, set confirmation and export status
-    // Replicates COHelpers.placeOrder from base SFCC
     try {
       Transaction.begin();
       const placeOrderStatus = OrderMgr.placeOrder(order);
@@ -236,50 +246,60 @@ const finalizeOrder = (order: Order, paymentIntent: InstanceType<typeof PaymentI
         throw new Error('OrderMgr.placeOrder returned error status');
       }
 
-      if (fraudDetectionStatus.status === 'flag') {
+      if (awaitingPayment || fraudDetectionStatus.status === 'flag') {
         order.setConfirmationStatus(Order.CONFIRMATION_STATUS_NOTCONFIRMED);
       } else {
         order.setConfirmationStatus(Order.CONFIRMATION_STATUS_CONFIRMED);
       }
-      order.setExportStatus(Order.EXPORT_STATUS_READY);
+      order.setExportStatus(awaitingPayment ? Order.EXPORT_STATUS_NOTEXPORTED : Order.EXPORT_STATUS_READY);
       Transaction.commit();
     } catch (placeError) {
       Transaction.rollback();
       Transaction.wrap(() => {
         OrderMgr.failOrder(order, true);
       });
-      logger.error('Failed to place order', { orderNo: order.orderNo, error: placeError });
+      logger.error(awaitingPayment ? 'Failed to place pending order' : 'Failed to place order', {
+        orderNo: order.orderNo,
+        error: placeError,
+      });
       return false;
     }
 
-    logger.info('Order placed successfully', { orderNo: order.orderNo });
+    logger.info(
+      awaitingPayment ? 'Pending order placed, waiting for payment confirmation' : 'Order placed successfully',
+      { orderNo: order.orderNo },
+    );
     return true;
   } catch (e) {
-    logger.error('Failed to finalize order', { orderNo: order.orderNo, error: e });
+    logger.error(awaitingPayment ? 'Failed to place pending order' : 'Failed to finalize order', {
+      orderNo: order.orderNo,
+      error: e,
+    });
     try {
       Transaction.wrap(() => {
         OrderMgr.failOrder(order, true);
       });
     } catch (failError) {
-      logger.error('Failed to fail order after finalization error', { orderNo: order.orderNo, error: failError });
+      logger.error(
+        awaitingPayment
+          ? 'Failed to fail order after pending placement error'
+          : 'Failed to fail order after finalization error',
+        { orderNo: order.orderNo, error: failError },
+      );
     }
     return false;
   }
 };
 
 /**
- * Process payment return from redirect-based payments
- * Called when customer returns from Alipay, bank redirect, etc.
- * @param basket - The current basket
- * @param paymentIntent - The PaymentIntent retrieved from Airwallex
- * @returns Result with order on success or error message on failure
+ * Shared guards for a shopper returning from a redirect payment.
+ * @returns An error result when the return must stop, otherwise null
  */
-const processPaymentReturn = (
+const validatePaymentReturn = (
   basket: Basket,
-  paymentIntent: InstanceType<typeof PaymentIntent>,
+  paymentIntent: PaymentIntentModel,
   options?: { fraudDetectionStatus?: boolean },
-): ProcessReturnResult => {
-  // Guard against repeated submissions after prior fraud detection failure
+): ProcessReturnResult | null => {
   if (options?.fraudDetectionStatus) {
     logger.error('Fraud detection status flag is set, blocking order creation');
     return {
@@ -288,7 +308,6 @@ const processPaymentReturn = (
     };
   }
 
-  // Verify payment intent matches the one stored on basket
   const storedPiId = basketHelper.getPaymentIntentId(basket);
   if (storedPiId && storedPiId !== paymentIntent.id) {
     logger.warn('PaymentIntent mismatch', {
@@ -297,7 +316,6 @@ const processPaymentReturn = (
     });
   }
 
-  // Validate payment intent amount matches basket total to prevent tampering
   // Prefer base_amount/base_currency (settlement values) when available
   const intentAmount = paymentIntent.baseAmount ?? paymentIntent.amount;
   const intentCurrency = paymentIntent.baseCurrency ?? paymentIntent.currency;
@@ -317,12 +335,46 @@ const processPaymentReturn = (
     };
   }
 
-  // Get reserved order number (for Drop-in flow)
+  return null;
+};
+
+/**
+ * Process payment return from redirect-based payments.
+ * awaitingPayment accepts REQUIRES_CUSTOMER_ACTION and leaves the order unconfirmed.
+ */
+const processPaymentReturnForStatus = (
+  basket: Basket,
+  paymentIntent: PaymentIntentModel,
+  options: { fraudDetectionStatus?: boolean } | undefined,
+  awaitingPayment: boolean,
+): ProcessReturnResult => {
+  const invalid = validatePaymentReturn(basket, paymentIntent, options);
+  if (invalid) {
+    return invalid;
+  }
+
+  const statusAccepted = awaitingPayment
+    ? paymentIntent.status === PAYMENT_INTENT_STATUS.REQUIRES_CUSTOMER_ACTION
+    : paymentIntent.status === PAYMENT_INTENT_STATUS.SUCCEEDED ||
+      paymentIntent.status === PAYMENT_INTENT_STATUS.REQUIRES_CAPTURE;
+  if (!statusAccepted) {
+    logger.info(
+      awaitingPayment
+        ? 'PaymentIntent is not waiting on customer action'
+        : 'PaymentIntent is not ready to place an order',
+      {
+        paymentIntentId: paymentIntent.id,
+        status: paymentIntent.status,
+      },
+    );
+    return {
+      success: false,
+      error: CHECKOUT_ERROR.PAYMENT_FAILED,
+    };
+  }
+
   const reservedOrderNo = basketHelper.getReservedOrderNo(basket);
-
-  // Create the order (includes basket validation)
   const createResult = createOrder(basket, reservedOrderNo || undefined);
-
   if (!createResult.success || !createResult.order) {
     logger.error('Order creation failed', { errorMessage: createResult.errorMessage });
     return {
@@ -331,11 +383,11 @@ const processPaymentReturn = (
     };
   }
 
-  const order = createResult.order;
-
-  // Finalize the order with payment data
-  const finalized = finalizeOrder(order, paymentIntent);
-
+  const finalized = finalizeOrder(
+    createResult.order,
+    paymentIntent,
+    awaitingPayment ? { awaitingPayment: true } : undefined,
+  );
   if (!finalized) {
     return {
       success: false,
@@ -343,21 +395,43 @@ const processPaymentReturn = (
     };
   }
 
-  // Clear basket payment data
   basketHelper.clearAirwallexData(basket);
-
   return {
     success: true,
-    order,
+    order: createResult.order,
   };
 };
+
+const processPaymentReturn = (
+  basket: Basket,
+  paymentIntent: PaymentIntentModel,
+  options?: { fraudDetectionStatus?: boolean },
+): ProcessReturnResult => processPaymentReturnForStatus(basket, paymentIntent, options, false);
+
+/**
+ * Create a pending order when a redirect wallet has finished but Airwallex
+ * still reports REQUIRES_CUSTOMER_ACTION. Fulfillment waits for the success webhook.
+ */
+const processPendingPaymentReturn = (
+  basket: Basket,
+  paymentIntent: PaymentIntentModel,
+  options?: { fraudDetectionStatus?: boolean },
+): ProcessReturnResult => processPaymentReturnForStatus(basket, paymentIntent, options, true);
 
 const checkoutService = {
   createOrder,
   finalizeOrder,
   processPaymentReturn,
+  processPendingPaymentReturn,
 };
 
 module.exports = checkoutService;
 export default checkoutService;
-export { createOrder, finalizeOrder, processPaymentReturn, ProcessReturnResult, CreateOrderResult };
+export {
+  createOrder,
+  finalizeOrder,
+  processPaymentReturn,
+  processPendingPaymentReturn,
+  ProcessReturnResult,
+  CreateOrderResult,
+};

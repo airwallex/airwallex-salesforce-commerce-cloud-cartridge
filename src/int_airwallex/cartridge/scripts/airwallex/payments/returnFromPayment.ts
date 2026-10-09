@@ -1,10 +1,13 @@
 import BasketMgr = require('dw/order/BasketMgr');
+import Basket = require('dw/order/Basket');
 import URLUtils = require('dw/web/URLUtils');
 
 import logger from '@/cartridge/scripts/helpers/logger';
 import basketHelper from '@/cartridge/scripts/helpers/basketHelper';
 import PaymentIntent from '@/cartridge/scripts/airwallex/models/PaymentIntent';
 import checkoutService from '@/cartridge/scripts/services/checkoutService';
+import { cleanupStalePaymentIntent } from '@/cartridge/scripts/helpers/paymentIntentValidation';
+import { PAYMENT_METHOD_ID } from '@/cartridge/scripts/constants/appConfig';
 import paymentStatus from '@/cartridge/scripts/constants/paymentStatus';
 import errorCodes from '@/cartridge/scripts/constants/errorCodes';
 import { getTemporaryBasketId, setTemporaryBasketId } from '@/cartridge/scripts/helpers/expressBasketHelper';
@@ -25,6 +28,19 @@ const { CHECKOUT_ERROR } = errorCodes;
  * already placed the order and consumed the basket, leaving pdict.valid
  * as null. The home page is the safest fallback.
  */
+const detachAbandonedPayment = (basket: Basket, paymentIntent: InstanceType<typeof PaymentIntent>) => {
+  const paymentInstruments = basket.getPaymentInstruments();
+  let paymentMethodId: string = PAYMENT_METHOD_ID.APM;
+  for (let i = 0; i < paymentInstruments.length; i++) {
+    const method = paymentInstruments[i].paymentMethod;
+    if (method === PAYMENT_METHOD_ID.CARD || method === PAYMENT_METHOD_ID.APM) {
+      paymentMethodId = method;
+      break;
+    }
+  }
+  cleanupStalePaymentIntent(basket, paymentMethodId, paymentIntent);
+};
+
 const redirectOnError = (req: Request, res: Response, errorCode: string) => {
   const checkoutStage = req.session.privacyCache.get('checkoutStage');
   logger.error('Redirecting on error', { errorCode, checkoutStage });
@@ -33,6 +49,32 @@ const redirectOnError = (req: Request, res: Response, errorCode: string) => {
   } else {
     res.redirect(URLUtils.url('Cart-Show').toString());
   }
+};
+
+const finishPaymentReturn = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  tempBasketId: string | null,
+  result: { success: boolean; order?: { orderNo: string; orderToken: string }; error?: string },
+) => {
+  if (result.success && result.order) {
+    if (tempBasketId) {
+      setTemporaryBasketId(null);
+    }
+    res.redirect(
+      URLUtils.url(
+        'Airwallex-ShowConfirmation',
+        'orderNo',
+        result.order.orderNo,
+        'orderToken',
+        result.order.orderToken,
+      ).toString(),
+    );
+  } else {
+    redirectOnError(req, res, result.error || CHECKOUT_ERROR.PROCESSING_ERROR);
+  }
+  return next();
 };
 
 const returnFromPayment = (req: Request, res: Response, next: NextFunction) => {
@@ -81,6 +123,7 @@ const returnFromPayment = (req: Request, res: Response, next: NextFunction) => {
       });
     } else {
       logger.info('Payment incomplete, customer returned with result', { returnResult: awxReturnResult });
+      detachAbandonedPayment(currentBasket, paymentIntent);
       redirectOnError(req, res, CHECKOUT_ERROR.PAYMENT_CANCELLED);
       return next();
     }
@@ -89,26 +132,43 @@ const returnFromPayment = (req: Request, res: Response, next: NextFunction) => {
   switch (paymentIntent.status) {
   case PAYMENT_INTENT_STATUS.SUCCEEDED:
   case PAYMENT_INTENT_STATUS.REQUIRES_CAPTURE:
-  case PAYMENT_INTENT_STATUS.REQUIRES_CUSTOMER_ACTION: {
-    const result = checkoutService.processPaymentReturn(currentBasket, paymentIntent, {
-      fraudDetectionStatus: req.session.privacyCache.get('fraudDetectionStatus'),
-    });
+    return finishPaymentReturn(
+      req,
+      res,
+      next,
+      tempBasketId,
+      checkoutService.processPaymentReturn(currentBasket, paymentIntent, {
+        fraudDetectionStatus: req.session.privacyCache.get('fraudDetectionStatus'),
+      }),
+    );
 
-    if (result.success && result.order) {
-      if (tempBasketId) {
-        setTemporaryBasketId(null);
-      }
-      res.redirect(
-        URLUtils.url(
-          'Airwallex-ShowConfirmation',
-          'orderNo',
-          result.order.orderNo,
-          'orderToken',
-          result.order.orderToken,
-        ).toString(),
+  case PAYMENT_INTENT_STATUS.REQUIRES_CUSTOMER_ACTION: {
+    // A redirect wallet can send the shopper back before Airwallex moves the
+    // PaymentIntent off REQUIRES_CUSTOMER_ACTION. Some methods omit
+    // awx_return_result on that return. Create an unconfirmed order now; the
+    // success webhook confirms and exports it.
+    if (!awxReturnResult || awxReturnResult === RETURN_RESULT.SUCCESS) {
+      return finishPaymentReturn(
+        req,
+        res,
+        next,
+        tempBasketId,
+        checkoutService.processPendingPaymentReturn(currentBasket, paymentIntent, {
+          fraudDetectionStatus: req.session.privacyCache.get('fraudDetectionStatus'),
+        }),
       );
+    }
+
+    // The shopper still has to finish 3DS or the redirect. Keep the basket and
+    // reserved order number so a later return can place the order once the
+    // PaymentIntent is SUCCEEDED or REQUIRES_CAPTURE.
+    const nextActionUrl = paymentIntent.nextAction?.url;
+    if (nextActionUrl) {
+      logger.info('Payment requires customer action, continuing next action', { paymentIntentId });
+      res.redirect(nextActionUrl);
     } else {
-      redirectOnError(req, res, result.error || CHECKOUT_ERROR.PROCESSING_ERROR);
+      logger.info('Payment requires customer action without a continuation URL', { paymentIntentId });
+      redirectOnError(req, res, CHECKOUT_ERROR.PAYMENT_FAILED);
     }
     return next();
   }

@@ -1,3 +1,10 @@
+## [1.25.0] - 2026-10-08
+
+### Fixed
+- Shoppers can start another payment after cancelling a redirect payment
+- Redirect wallets that return before the payment is final place an unconfirmed order, which the success webhook confirms and marks ready for export
+- Checkout confirms an order on return only after the payment has succeeded or is ready to capture
+
 ## [1.23.0] - 2026-09-23
 
 ### Changed
